@@ -34,7 +34,7 @@ export default async function HomePage() {
     {
       name: 'Residential & Commercial',
       desc: 'Reduce energy costs, improve privacy, and block harmful UV rays with professional window film for your home or business. Great for offices, storefronts, and residential windows of any size.',
-      image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=280&fit=crop&q=80',
+      image: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&h=280&fit=crop&q=80',
     },
     {
       name: 'Vinyl Wrap',
