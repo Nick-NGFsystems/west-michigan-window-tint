@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: #0A0A0A;
+    --surface: #141414;
+    --surface-2: #1C1A17;
+    --text: #F2EDE4;
+    --muted: #8A8070;
+    --line: #2E2920;
+    --gold: #C8A84B;
+    --gold-light: #E8C060;
+  }
+
+  * {
+    @apply border-transparent;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-outfit), sans-serif;
+    min-height: 100vh;
+    background-color: var(--bg);
+    color: var(--text);
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(200, 168, 75, 0.07), transparent 50%),
+      radial-gradient(ellipse at 80% 5%, rgba(200, 168, 75, 0.05), transparent 40%);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-outfit), sans-serif;
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer utilities {
+  .panel {
+    @apply rounded-2xl border shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-sm;
+    border-color: var(--line);
+    background-color: rgba(20, 20, 20, 0.9);
+  }
+
+  .panel-gold {
+    @apply rounded-2xl border;
+    border-color: rgba(200, 168, 75, 0.25);
+    background: linear-gradient(135deg, rgba(200, 168, 75, 0.06) 0%, rgba(20, 20, 20, 0.95) 60%);
+  }
+
+  .gold-chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em];
+    border: 1px solid rgba(200, 168, 75, 0.35);
+    background-color: rgba(200, 168, 75, 0.1);
+    color: var(--gold-light);
+  }
+
+  .input-dark {
+    @apply min-h-11 w-full rounded-xl px-4 py-3 text-sm text-[var(--text)] placeholder:text-[var(--muted)] focus:outline-none transition-colors;
+    border: 1px solid var(--line);
+    background-color: rgba(28, 26, 23, 0.8);
+  }
+
+  .input-dark:focus {
+    border-color: rgba(200, 168, 75, 0.5);
+  }
+
+  .btn-gold {
+    @apply inline-flex min-h-11 items-center justify-center rounded-xl px-7 py-3 text-sm font-semibold tracking-wide transition-all hover:brightness-110 active:scale-[0.98];
+    background: linear-gradient(135deg, #C8A84B, #E8C060);
+    color: #0A0A0A;
+  }
+
+  .btn-outline {
+    @apply inline-flex min-h-11 items-center justify-center rounded-xl px-7 py-3 text-sm font-semibold tracking-wide transition-all hover:bg-[var(--surface-2)] active:scale-[0.98];
+    border: 1px solid var(--line);
+    color: var(--text);
+  }
+}
