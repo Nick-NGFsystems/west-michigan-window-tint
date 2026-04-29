@@ -39,7 +39,7 @@ export default async function HomePage() {
     {
       name: 'Vinyl Wrap',
       desc: 'Full vehicle wraps, partial color changes, and paint protection film. Whether you want to stand out or protect your factory finish, we cut and install every wrap by hand for a seamless look.',
-      image: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&h=280&fit=crop&q=80',
+      image: '/vinyl-wrap.webp',
     },
     {
       name: 'Ambient Lighting',
