@@ -8,6 +8,7 @@ const SERVICES = [
   'Automobile Tint',
   'Vinyl Wrap',
   'Ambient Lighting',
+  'Residential & Commercial Tint',
   'Multiple Services',
   'Not Sure — Need a Consultation',
 ]

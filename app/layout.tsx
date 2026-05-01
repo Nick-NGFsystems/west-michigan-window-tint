@@ -11,9 +11,9 @@ const outfit = Outfit({
 })
 
 export const metadata: Metadata = {
-  title: 'West Michigan Window Tint',
+  title: 'West Michigan Window Tint | Auto Tint, Vinyl Wrap & More',
   description:
-    'Professional automotive tint, residential & commercial tint, vinyl wrap, and ambient lighting in West Michigan. Contact Zach today.',
+    'West Michigan\'s go-to shop for automotive window tint, vinyl wrap, ambient lighting, and residential & commercial window film. Professional installs by Zach — serving the greater Grand Rapids area.',
   other: {
     'ngf-public-api': 'https://app.ngfsystems.com/api/public/content',
   },
@@ -24,10 +24,4 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={outfit.variable}>
-      <body className="antialiased" suppressHydrationWarning>
-        <NgfEditBridge />
-        {children}
-      </body>
-    </html>
-  )
-}
+      <body className="antialiased" sup
