@@ -25,7 +25,6 @@ export default function QuotePage() {
   const [service, setService] = useState('')
   const [hasTint, setHasTint] = useState<'yes' | 'no' | ''>('')
   const [contactMethod, setContactMethod] = useState('')
-  const [windowsWithTint, setWindowsWithTint] = useState<Set<string>>(new Set())
   const [windowsGettingTint, setWindowsGettingTint] = useState<Set<string>>(new Set())
 
   const isTint = service === 'Automobile Tint'
@@ -44,7 +43,6 @@ export default function QuotePage() {
         vehicleMake:        (form.elements.namedItem('vehicleMake') as HTMLInputElement).value,
         vehicleModel:       (form.elements.namedItem('vehicleModel') as HTMLInputElement).value,
         hasTint,
-        windowsWithTint:    hasTint === 'yes' ? Array.from(windowsWithTint) : [],
         windowsGettingTint: Array.from(windowsGettingTint),
       }),
       contactMethod,
@@ -178,7 +176,6 @@ export default function QuotePage() {
                       type="button"
                       onClick={() => {
                         setHasTint(val)
-                        setWindowsWithTint(new Set())
                         setWindowsGettingTint(new Set())
                       }}
                       className="flex-1 rounded-xl py-3 text-sm font-semibold capitalize transition-all"
@@ -194,33 +191,8 @@ export default function QuotePage() {
                 </div>
               </div>
 
-              {/* Window selectors — conditional on hasTint */}
-              {hasTint === 'yes' && (
-                <div className="mt-6 space-y-8">
-                  {/* Existing tint windows */}
-                  <div className="space-y-3">
-                    <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(200,168,75,0.07)', border: '1px solid rgba(200,168,75,0.2)' }}>
-                      <p className="text-sm font-semibold" style={{ color: 'var(--gold-light)' }}>Which windows already have tint?</p>
-                      <p className="mt-0.5 text-xs" style={{ color: 'var(--muted)' }}>Tap each window to mark it</p>
-                    </div>
-                    <CarWindowSelector selected={windowsWithTint} onChange={setWindowsWithTint} />
-                  </div>
-
-                  {/* Divider */}
-                  <div className="h-px" style={{ background: 'var(--line)' }} />
-
-                  {/* Windows getting tint */}
-                  <div className="space-y-3">
-                    <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(200,168,75,0.07)', border: '1px solid rgba(200,168,75,0.2)' }}>
-                      <p className="text-sm font-semibold" style={{ color: 'var(--gold-light)' }}>Which windows are getting tint?</p>
-                      <p className="mt-0.5 text-xs" style={{ color: 'var(--muted)' }}>Tap each window to select it</p>
-                    </div>
-                    <CarWindowSelector selected={windowsGettingTint} onChange={setWindowsGettingTint} />
-                  </div>
-                </div>
-              )}
-
-              {hasTint === 'no' && (
+              {/* Window selector — shown once hasTint is answered */}
+              {hasTint !== '' && (
                 <div className="mt-6 space-y-3">
                   <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(200,168,75,0.07)', border: '1px solid rgba(200,168,75,0.2)' }}>
                     <p className="text-sm font-semibold" style={{ color: 'var(--gold-light)' }}>Which windows are getting tint?</p>
@@ -283,3 +255,4 @@ export default function QuotePage() {
     </main>
   )
 }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
