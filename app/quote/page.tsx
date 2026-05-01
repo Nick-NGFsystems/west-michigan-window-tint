@@ -162,10 +162,14 @@ export default function QuotePage() {
               </div>
 
               {/* Existing tint */}
-              <div className="mt-5 space-y-2">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>
-                  Does the vehicle already have tint?
-                </p>
+              <div className="mt-6 space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="h-px flex-1" style={{ background: 'var(--line)' }} />
+                  <p className="text-sm font-semibold text-[var(--text)]">
+                    Does the vehicle already have tint?
+                  </p>
+                  <div className="h-px flex-1" style={{ background: 'var(--line)' }} />
+                </div>
                 <div className="flex gap-3">
                   {(['yes', 'no'] as const).map((val) => (
                     <button
@@ -194,11 +198,9 @@ export default function QuotePage() {
                 <div className="mt-6 space-y-8">
                   {/* Existing tint windows */}
                   <div className="space-y-3">
-                    <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>
-                        Which windows already have tint?
-                      </p>
-                      <p className="mt-0.5 text-xs" style={{ color: 'var(--muted)', opacity: 0.6 }}>Tap to select</p>
+                    <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(200,168,75,0.07)', border: '1px solid rgba(200,168,75,0.2)' }}>
+                      <p className="text-sm font-semibold" style={{ color: 'var(--gold-light)' }}>Which windows already have tint?</p>
+                      <p className="mt-0.5 text-xs" style={{ color: 'var(--muted)' }}>Tap each window to mark it</p>
                     </div>
                     <CarWindowSelector selected={windowsWithTint} onChange={setWindowsWithTint} />
                   </div>
@@ -208,11 +210,9 @@ export default function QuotePage() {
 
                   {/* Windows getting tint */}
                   <div className="space-y-3">
-                    <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>
-                        Which windows are getting tint?
-                      </p>
-                      <p className="mt-0.5 text-xs" style={{ color: 'var(--muted)', opacity: 0.6 }}>Tap to select</p>
+                    <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(200,168,75,0.07)', border: '1px solid rgba(200,168,75,0.2)' }}>
+                      <p className="text-sm font-semibold" style={{ color: 'var(--gold-light)' }}>Which windows are getting tint?</p>
+                      <p className="mt-0.5 text-xs" style={{ color: 'var(--muted)' }}>Tap each window to select it</p>
                     </div>
                     <CarWindowSelector selected={windowsGettingTint} onChange={setWindowsGettingTint} />
                   </div>
@@ -221,11 +221,9 @@ export default function QuotePage() {
 
               {hasTint === 'no' && (
                 <div className="mt-6 space-y-3">
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>
-                      Which windows are getting tint?
-                    </p>
-                    <p className="mt-0.5 text-xs" style={{ color: 'var(--muted)', opacity: 0.6 }}>Tap to select</p>
+                  <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(200,168,75,0.07)', border: '1px solid rgba(200,168,75,0.2)' }}>
+                    <p className="text-sm font-semibold" style={{ color: 'var(--gold-light)' }}>Which windows are getting tint?</p>
+                    <p className="mt-0.5 text-xs" style={{ color: 'var(--muted)' }}>Tap each window to select it</p>
                   </div>
                   <CarWindowSelector selected={windowsGettingTint} onChange={setWindowsGettingTint} />
                 </div>
