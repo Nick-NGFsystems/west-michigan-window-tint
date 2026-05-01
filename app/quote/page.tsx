@@ -2,11 +2,10 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import CarWindowSelector from '@/components/CarWindowSelector'
 
 const SERVICES = [
   'Automobile Tint',
-  'Residential Tint',
-  'Commercial Tint',
   'Vinyl Wrap',
   'Ambient Lighting',
   'Multiple Services',
@@ -22,24 +21,33 @@ const CONTACT_METHODS = [
 export default function QuotePage() {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [service, setService] = useState('')
   const [hasTint, setHasTint] = useState<'yes' | 'no' | ''>('')
   const [contactMethod, setContactMethod] = useState('')
+  const [windowsWithTint, setWindowsWithTint] = useState<Set<string>>(new Set())
+  const [windowsGettingTint, setWindowsGettingTint] = useState<Set<string>>(new Set())
+
+  const isTint = service === 'Automobile Tint'
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setLoading(true)
     const form = e.currentTarget
     const data = {
-      name:          (form.elements.namedItem('name') as HTMLInputElement).value,
-      email:         (form.elements.namedItem('email') as HTMLInputElement).value,
-      phone:         (form.elements.namedItem('phone') as HTMLInputElement).value,
-      vehicleYear:   (form.elements.namedItem('vehicleYear') as HTMLInputElement).value,
-      vehicleMake:   (form.elements.namedItem('vehicleMake') as HTMLInputElement).value,
-      vehicleModel:  (form.elements.namedItem('vehicleModel') as HTMLInputElement).value,
-      service:       (form.elements.namedItem('service') as HTMLSelectElement).value,
-      hasTint,
+      name:         (form.elements.namedItem('name') as HTMLInputElement).value,
+      email:        (form.elements.namedItem('email') as HTMLInputElement).value,
+      phone:        (form.elements.namedItem('phone') as HTMLInputElement).value,
+      service,
+      ...(isTint && {
+        vehicleYear:        (form.elements.namedItem('vehicleYear') as HTMLInputElement).value,
+        vehicleMake:        (form.elements.namedItem('vehicleMake') as HTMLInputElement).value,
+        vehicleModel:       (form.elements.namedItem('vehicleModel') as HTMLInputElement).value,
+        hasTint,
+        windowsWithTint:    hasTint === 'yes' ? Array.from(windowsWithTint) : [],
+        windowsGettingTint: Array.from(windowsGettingTint),
+      }),
       contactMethod,
-      notes:         (form.elements.namedItem('notes') as HTMLTextAreaElement).value,
+      notes: (form.elements.namedItem('notes') as HTMLTextAreaElement).value,
     }
     const res = await fetch('/api/quote', {
       method: 'POST',
@@ -83,7 +91,6 @@ export default function QuotePage() {
       </div>
 
       <div className="mx-auto mt-8 max-w-2xl">
-        {/* Header */}
         <div className="mb-8">
           <span className="gold-chip">Free Quote</span>
           <h1 className="mt-4 text-4xl font-bold text-[var(--text)] sm:text-5xl">Get in Touch</h1>
@@ -99,100 +106,138 @@ export default function QuotePage() {
             <h2 className="text-lg font-semibold text-[var(--text)]">Your Info</h2>
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <label htmlFor="name" className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>
-                  Full Name *
-                </label>
+                <label htmlFor="name" className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>Full Name *</label>
                 <input id="name" name="name" required placeholder="John Smith" className="input-dark" />
               </div>
               <div className="space-y-1.5">
-                <label htmlFor="phone" className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>
-                  Phone Number *
-                </label>
+                <label htmlFor="phone" className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>Phone Number *</label>
                 <input id="phone" name="phone" type="tel" required placeholder="(616) 555-0123" className="input-dark" />
               </div>
             </div>
             <div className="mt-4 space-y-1.5">
-              <label htmlFor="email" className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>
-                Email Address *
-              </label>
+              <label htmlFor="email" className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>Email Address *</label>
               <input id="email" name="email" type="email" required placeholder="you@example.com" className="input-dark" />
             </div>
           </div>
 
-          {/* Vehicle Info */}
+          {/* Service */}
           <div className="panel p-6">
-            <h2 className="text-lg font-semibold text-[var(--text)]">Vehicle Info</h2>
-            <p className="mt-1 text-xs" style={{ color: 'var(--muted)' }}>
-              For residential/commercial inquiries, leave vehicle fields blank.
-            </p>
-            <div className="mt-4 grid grid-cols-3 gap-3">
-              <div className="space-y-1.5">
-                <label htmlFor="vehicleYear" className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>Year</label>
-                <input id="vehicleYear" name="vehicleYear" maxLength={4} placeholder="2022" className="input-dark" />
-              </div>
-              <div className="space-y-1.5">
-                <label htmlFor="vehicleMake" className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>Make</label>
-                <input id="vehicleMake" name="vehicleMake" placeholder="Toyota" className="input-dark" />
-              </div>
-              <div className="space-y-1.5">
-                <label htmlFor="vehicleModel" className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>Model</label>
-                <input id="vehicleModel" name="vehicleModel" placeholder="Camry" className="input-dark" />
-              </div>
-            </div>
-
-            {/* Existing tint toggle */}
-            <div className="mt-5 space-y-2">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>
-                Does the vehicle already have tint?
-              </p>
-              <div className="flex gap-3">
-                {(['yes', 'no'] as const).map((val) => (
-                  <button
-                    key={val}
-                    type="button"
-                    onClick={() => setHasTint(val)}
-                    className="flex-1 rounded-xl py-3 text-sm font-semibold capitalize transition-all"
-                    style={{
-                      border: hasTint === val ? '1px solid rgba(200,168,75,0.6)' : '1px solid var(--line)',
-                      background: hasTint === val ? 'rgba(200,168,75,0.12)' : 'rgba(28,26,23,0.8)',
-                      color: hasTint === val ? 'var(--gold-light)' : 'var(--muted)',
-                    }}
-                  >
-                    {val === 'yes' ? 'Yes' : 'No'}
-                  </button>
-                ))}
-              </div>
+            <h2 className="text-lg font-semibold text-[var(--text)]">What are you looking for?</h2>
+            <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {SERVICES.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setService(s)}
+                  className="rounded-xl px-4 py-3 text-left text-sm font-medium transition-all"
+                  style={{
+                    border: service === s ? '1px solid rgba(200,168,75,0.6)' : '1px solid var(--line)',
+                    background: service === s ? 'rgba(200,168,75,0.1)' : 'rgba(28,26,23,0.8)',
+                    color: service === s ? 'var(--gold-light)' : 'var(--text)',
+                  }}
+                >
+                  {s}
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Service & Contact */}
-          <div className="panel p-6">
-            <h2 className="text-lg font-semibold text-[var(--text)]">Service & Contact</h2>
+          {/* Vehicle Info — Automobile Tint only */}
+          {isTint && (
+            <div className="panel p-6">
+              <h2 className="text-lg font-semibold text-[var(--text)]">Vehicle Info</h2>
+              <div className="mt-4 grid grid-cols-3 gap-3">
+                <div className="space-y-1.5">
+                  <label htmlFor="vehicleYear" className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>Year</label>
+                  <input id="vehicleYear" name="vehicleYear" maxLength={4} placeholder="2022" className="input-dark" />
+                </div>
+                <div className="space-y-1.5">
+                  <label htmlFor="vehicleMake" className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>Make</label>
+                  <input id="vehicleMake" name="vehicleMake" placeholder="Toyota" className="input-dark" />
+                </div>
+                <div className="space-y-1.5">
+                  <label htmlFor="vehicleModel" className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>Model</label>
+                  <input id="vehicleModel" name="vehicleModel" placeholder="Camry" className="input-dark" />
+                </div>
+              </div>
 
-            <div className="mt-4 space-y-1.5">
-              <label htmlFor="service" className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>
-                Service Interested In *
-              </label>
-              <select
-                id="service"
-                name="service"
-                required
-                className="input-dark"
-                style={{ appearance: 'none' }}
-              >
-                <option value="">Select a service...</option>
-                {SERVICES.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
+              {/* Existing tint */}
+              <div className="mt-5 space-y-2">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>
+                  Does the vehicle already have tint?
+                </p>
+                <div className="flex gap-3">
+                  {(['yes', 'no'] as const).map((val) => (
+                    <button
+                      key={val}
+                      type="button"
+                      onClick={() => {
+                        setHasTint(val)
+                        setWindowsWithTint(new Set())
+                        setWindowsGettingTint(new Set())
+                      }}
+                      className="flex-1 rounded-xl py-3 text-sm font-semibold capitalize transition-all"
+                      style={{
+                        border: hasTint === val ? '1px solid rgba(200,168,75,0.6)' : '1px solid var(--line)',
+                        background: hasTint === val ? 'rgba(200,168,75,0.12)' : 'rgba(28,26,23,0.8)',
+                        color: hasTint === val ? 'var(--gold-light)' : 'var(--muted)',
+                      }}
+                    >
+                      {val === 'yes' ? 'Yes' : 'No'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Window selectors — conditional on hasTint */}
+              {hasTint === 'yes' && (
+                <div className="mt-6 space-y-8">
+                  {/* Existing tint windows */}
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>
+                        Which windows already have tint?
+                      </p>
+                      <p className="mt-0.5 text-xs" style={{ color: 'var(--muted)', opacity: 0.6 }}>Tap to select</p>
+                    </div>
+                    <CarWindowSelector selected={windowsWithTint} onChange={setWindowsWithTint} />
+                  </div>
+
+                  {/* Divider */}
+                  <div className="h-px" style={{ background: 'var(--line)' }} />
+
+                  {/* Windows getting tint */}
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>
+                        Which windows are getting tint?
+                      </p>
+                      <p className="mt-0.5 text-xs" style={{ color: 'var(--muted)', opacity: 0.6 }}>Tap to select</p>
+                    </div>
+                    <CarWindowSelector selected={windowsGettingTint} onChange={setWindowsGettingTint} />
+                  </div>
+                </div>
+              )}
+
+              {hasTint === 'no' && (
+                <div className="mt-6 space-y-3">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>
+                      Which windows are getting tint?
+                    </p>
+                    <p className="mt-0.5 text-xs" style={{ color: 'var(--muted)', opacity: 0.6 }}>Tap to select</p>
+                  </div>
+                  <CarWindowSelector selected={windowsGettingTint} onChange={setWindowsGettingTint} />
+                </div>
+              )}
             </div>
+          )}
 
-            {/* Best contact method */}
-            <div className="mt-5 space-y-2">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>
-                Best Way to Reach You *
-              </p>
-              <div className="grid grid-cols-3 gap-3">
+          {/* Contact + Notes */}
+          {service && (
+            <div className="panel p-6">
+              <h2 className="text-lg font-semibold text-[var(--text)]">How should Zach reach you?</h2>
+              <div className="mt-4 grid grid-cols-3 gap-3">
                 {CONTACT_METHODS.map((m) => (
                   <button
                     key={m.value}
@@ -209,30 +254,30 @@ export default function QuotePage() {
                   </button>
                 ))}
               </div>
+              <div className="mt-5 space-y-1.5">
+                <label htmlFor="notes" className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>
+                  Additional Notes
+                </label>
+                <textarea
+                  id="notes"
+                  name="notes"
+                  rows={4}
+                  placeholder="Anything else Zach should know..."
+                  className="input-dark resize-none"
+                />
+              </div>
             </div>
+          )}
 
-            {/* Notes */}
-            <div className="mt-5 space-y-1.5">
-              <label htmlFor="notes" className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>
-                Additional Notes
-              </label>
-              <textarea
-                id="notes"
-                name="notes"
-                rows={4}
-                placeholder="Anything else Zach should know..."
-                className="input-dark resize-none"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading || !contactMethod}
-            className="btn-gold w-full disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {loading ? 'Sending...' : 'Send Quote Request'}
-          </button>
+          {service && (
+            <button
+              type="submit"
+              disabled={loading || !contactMethod}
+              className="btn-gold w-full disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {loading ? 'Sending...' : 'Send Quote Request'}
+            </button>
+          )}
 
         </form>
       </div>

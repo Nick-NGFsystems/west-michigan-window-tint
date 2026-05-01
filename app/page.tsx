@@ -84,7 +84,7 @@ export default async function HomePage() {
       caption: 'Paint Protection Film',
     },
     {
-      image: 'https://images.unsplash.com/photo-1497366858526-5a2e9fd1ed4d?w=1200&h=675&fit=crop&q=85',
+      image: 'https://images.unsplash.com/photo-1486496572940-2bb2341fdbdf?w=1200&h=675&fit=crop&q=85',
       caption: 'Commercial Window Film',
     },
   ]
