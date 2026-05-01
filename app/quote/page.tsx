@@ -10,7 +10,7 @@ const SERVICES = [
   'Ambient Lighting',
   'Residential & Commercial Tint',
   'Multiple Services',
-  'Not Sure — Need a Consultation',
+  'Not Sure -- Need a Consultation',
 ]
 
 const CONTACT_METHODS = [
@@ -70,7 +70,7 @@ export default function QuotePage() {
         <p className="mx-auto mt-4 max-w-md text-base" style={{ color: 'var(--muted)' }}>
           Zach will follow up with you shortly via your preferred contact method.
         </p>
-        <Link href="/" className="btn-outline mt-8">← Back to Home</Link>
+        <Link href="/" className="btn-outline mt-8">Back to Home</Link>
       </main>
     )
   }
@@ -78,14 +78,13 @@ export default function QuotePage() {
   return (
     <main className="min-h-screen px-4 pb-24 pt-6 sm:px-6">
 
-      {/* Back nav */}
       <div className="mx-auto max-w-2xl">
         <Link
           href="/"
           className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] transition-colors hover:text-[var(--gold)]"
           style={{ color: 'var(--muted)' }}
         >
-          ← Back to Home
+          Back to Home
         </Link>
       </div>
 
@@ -141,7 +140,7 @@ export default function QuotePage() {
             </div>
           </div>
 
-          {/* Vehicle Info — Automobile Tint only */}
+          {/* Vehicle Info - Automobile Tint only */}
           {isTint && (
             <div className="panel p-6">
               <h2 className="text-lg font-semibold text-[var(--text)]">Vehicle Info</h2>
@@ -160,7 +159,7 @@ export default function QuotePage() {
                 </div>
               </div>
 
-              {/* Existing tint */}
+              {/* Existing tint yes/no */}
               <div className="mt-6 space-y-3">
                 <div className="flex items-center gap-3">
                   <div className="h-px flex-1" style={{ background: 'var(--line)' }} />
@@ -191,7 +190,7 @@ export default function QuotePage() {
                 </div>
               </div>
 
-              {/* Window selector — shown once hasTint is answered */}
+              {/* Window selector */}
               {hasTint !== '' && (
                 <div className="mt-6 space-y-3">
                   <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(200,168,75,0.07)', border: '1px solid rgba(200,168,75,0.2)' }}>
@@ -255,4 +254,3 @@ export default function QuotePage() {
     </main>
   )
 }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
