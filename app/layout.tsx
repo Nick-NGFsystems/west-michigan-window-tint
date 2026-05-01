@@ -13,7 +13,7 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: 'West Michigan Window Tint | Auto Tint, Vinyl Wrap & More',
   description:
-    'West Michigan\'s go-to shop for automotive window tint, vinyl wrap, ambient lighting, and residential & commercial window film. Professional installs by Zach — serving the greater Grand Rapids area.',
+    "West Michigan's go-to shop for automotive window tint, vinyl wrap, ambient lighting, and residential & commercial window film. Professional installs by Zach — serving the greater Grand Rapids area.",
   other: {
     'ngf-public-api': 'https://app.ngfsystems.com/api/public/content',
   },
@@ -24,4 +24,4 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={outfit.variable}>
-      <body className="antialiased" sup
+      <body className="antialiased" supp
