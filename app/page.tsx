@@ -46,13 +46,8 @@ export default async function HomePage() {
       desc: 'Custom interior LED accent lighting that transforms your cabin at night. We run clean wiring and mount lights where they belong — no dangling strips, no visible wires.',
       image: 'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?w=600&h=280&fit=crop&q=80',
     },
-    {
-      name: 'Residential & Commercial',
-      desc: 'Reduce heat, glare, and UV exposure in your home or business with professional window film. Improve comfort and privacy without sacrificing natural light.',
-      image: 'https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=600&h=280&fit=crop&q=80',
-    },
   ]
-  const serviceIcons = ['01', '02', '03', '04', '05']
+  const serviceIcons = ['01', '02', '03', '04']
 
   // Why Choose Us
   const whyTitle   = content['why.title'] || 'Why Choose Us'
