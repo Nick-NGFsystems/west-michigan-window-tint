@@ -46,7 +46,8 @@ export default function QuotePage() {
         windowsGettingTint: Array.from(windowsGettingTint),
       }),
       contactMethod,
-      notes: (form.elements.namedItem('notes') as HTMLTextAreaElement).value,
+      projectNotes: (form.elements.namedItem('projectNotes') as HTMLTextAreaElement | null)?.value ?? '',
+      notes: (form.elements.namedItem('notes') as HTMLTextAreaElement | null)?.value ?? '',
     }
     const res = await fetch('/api/quote', {
       method: 'POST',
@@ -139,6 +140,26 @@ export default function QuotePage() {
               ))}
             </div>
           </div>
+
+          {/* Project Notes - all services except Automobile Tint */}
+          {service && !isTint && (
+            <div className="panel p-6">
+              <h2 className="text-lg font-semibold text-[var(--text)]">Tell Us About Your Project</h2>
+              <p className="mt-1 text-sm" style={{ color: 'var(--muted)' }}>
+                Give Zach a quick overview so he can prepare an accurate quote.
+              </p>
+              <div className="mt-4 space-y-1.5">
+                <label htmlFor="projectNotes" className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted)' }}>Project Details</label>
+                <textarea
+                  id="projectNotes"
+                  name="projectNotes"
+                  rows={5}
+                  placeholder="Describe what you have in mind — location, size, colors, vehicle details, timeline, or anything else that's helpful..."
+                  className="input-dark resize-none"
+                />
+              </div>
+            </div>
+          )}
 
           {/* Vehicle Info - Automobile Tint only */}
           {isTint && (

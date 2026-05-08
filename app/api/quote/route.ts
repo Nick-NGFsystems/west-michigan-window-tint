@@ -58,6 +58,7 @@ export async function POST(req: NextRequest) {
       hasTint?: string
       windowsGettingTint?: string[]
       contactMethod: string
+      projectNotes?: string
       notes: string
     }
 
@@ -102,6 +103,10 @@ export async function POST(req: NextRequest) {
       ${section('Service Requested', [
         row('Service', body.service),
       ].join(''))}
+
+      ${body.projectNotes ? section('Project Details', [
+        row('', body.projectNotes),
+      ].join('')) : ''}
 
       ${isAutoTint ? section('Vehicle', [
         row('Vehicle', vehicleInfo),
