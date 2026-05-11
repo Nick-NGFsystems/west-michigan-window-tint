@@ -32,31 +32,43 @@ function getImages(svc: Service, idx: number): string[] {
   return [svc.image || FALLBACK]
 }
 
-// DragScroll - reusable horizontal drag-to-scroll strip
+// DragScroll - lazy pointer capture so child buttons still receive click events
 
 function DragScroll({ children, className, style }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
   const ref      = useRef<HTMLDivElement>(null)
   const startX   = useRef(0)
   const scrollX  = useRef(0)
   const active   = useRef(false)
+  const captured = useRef(false)
 
   function onPointerDown(e: React.PointerEvent) {
     if (!ref.current) return
-    active.current = true
-    startX.current  = e.clientX
-    scrollX.current = ref.current.scrollLeft
-    ref.current.setPointerCapture(e.pointerId)
-    ref.current.style.cursor = 'grabbing'
+    active.current   = true
+    captured.current = false
+    startX.current   = e.clientX
+    scrollX.current  = ref.current.scrollLeft
+    // Do NOT capture here - wait for real movement so taps still fire onClick on children
   }
   function onPointerMove(e: React.PointerEvent) {
     if (!active.current || !ref.current) return
-    ref.current.scrollLeft = scrollX.current - (e.clientX - startX.current)
+    const dx = Math.abs(e.clientX - startX.current)
+    if (!captured.current && dx > 4) {
+      captured.current = true
+      ref.current.setPointerCapture(e.pointerId)
+      ref.current.style.cursor = 'grabbing'
+    }
+    if (captured.current) {
+      ref.current.scrollLeft = scrollX.current - (e.clientX - startX.current)
+    }
   }
   function onPointerUp(e: React.PointerEvent) {
     if (!ref.current) return
     active.current = false
     ref.current.style.cursor = 'grab'
-    ref.current.releasePointerCapture(e.pointerId)
+    if (captured.current) {
+      captured.current = false
+      ref.current.releasePointerCapture(e.pointerId)
+    }
   }
   function onWheel(e: React.WheelEvent) {
     if (!ref.current) return
@@ -136,11 +148,11 @@ type DragState = { sx: number; sy: number; px: number; py: number; moved: boolea
 function Lightbox({ services, icons, initialIdx, onClose }: {
   services: Service[]; icons: string[]; initialIdx: number; onClose: () => void
 }) {
-  const [svcIdx, setSvcIdx]   = useState(initialIdx)
-  const [imgIdx, setImgIdx]   = useState(0)
-  const [zoom, setZoom]       = useState(1)
+  const [svcIdx, setSvcIdx]     = useState(initialIdx)
+  const [imgIdx, setImgIdx]     = useState(0)
+  const [zoom, setZoom]         = useState(1)
   const [dragging, setDragging] = useState(false)
-  const [isFS, setIsFS]       = useState(false)
+  const [isFS, setIsFS]         = useState(false)
 
   const panRef   = useRef({ x: 0, y: 0 })
   const dragRef  = useRef<DragState | null>(null)
@@ -326,7 +338,7 @@ function Lightbox({ services, icons, initialIdx, onClose }: {
             ))}
           </div>
 
-          {/* Prev / Next arrows - hidden when zoomed in */}
+          {/* Prev / Next arrows */}
           {images.length > 1 && zoom === 1 && (
             <>
               <button
