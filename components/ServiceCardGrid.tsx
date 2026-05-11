@@ -4,32 +4,57 @@ import React, { useState, useEffect, useCallback, useRef } from 'react'
 
 type Service = { name?: string; desc?: string; image?: string }
 
+// Real photos organized by service index
+// 0=Automobile Tint, 1=Residential & Commercial, 2=Vinyl Wrap, 3=Ambient Lighting
 const EXTRA_IMAGES: Record<number, string[]> = {
   0: [
-    '/images/BlueBMWFR.jpeg', '/images/BlueBMWSL.jpeg', '/images/GreenDodgeFL.jpeg',
-    '/images/SilverSubaruFL.jpeg', '/images/SilverSubaruSL.jpeg', '/images/WhiteCivicFR.jpeg',
-    '/images/WhiteGMCFL.jpeg', '/images/WhiteJeepFR.jpeg', '/images/WhiteJeepSL.jpeg',
+    '/images/Tint/BlueBMWFR.jpeg',
+    '/images/Tint/BlueBMWSL.jpeg',
+    '/images/Tint/GreenDodgeFL.jpeg',
+    '/images/Tint/RedTruckDS.jpeg',
+    '/images/Tint/RedTruckPS.jpeg',
+    '/images/Tint/RedTruckPSF.jpeg',
+    '/images/Tint/SilverSubaruFL.jpeg',
+    '/images/Tint/SilverSubaruSL.jpeg',
+    '/images/Tint/WhiteCivicFR.jpeg',
+    '/images/Tint/WhiteGMCFL.jpeg',
+    '/images/Tint/WhiteJeepFR.jpeg',
+    '/images/Tint/WhiteJeepSL.jpeg',
+    '/images/Tint/WhiteToyotaDS.jpeg',
   ],
   1: [
-    'https://images.unsplash.com/photo-1497366216548-37526070297c?w=700&h=440&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=700&h=440&fit=crop&q=80',
+    '/images/Residential-Commercial/BathroomWindowTint.jpeg',
+    '/images/Residential-Commercial/HouseInteriorWindowTint.jpeg',
+    '/images/Residential-Commercial/HouseWindowTint.jpeg',
   ],
   2: [
-    'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=700&h=440&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=700&h=440&fit=crop&q=80',
+    '/images/Vinyl-Wrap/IMG_9248.jpeg',
+    '/images/Vinyl-Wrap/IMG_9250.jpeg',
+    '/images/Vinyl-Wrap/IMG_9260.jpeg',
+    '/images/Vinyl-Wrap/IMG_9263.jpeg',
+    '/images/Vinyl-Wrap/IMG_9265.jpeg',
+    '/images/Vinyl-Wrap/IMG_9266.jpeg',
+    '/images/Vinyl-Wrap/IMG_9267.jpeg',
+    '/images/Vinyl-Wrap/IMG_9272.jpeg',
+    '/images/Vinyl-Wrap/IMG_9273.jpeg',
   ],
   3: [
-    'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=700&h=440&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?w=700&h=440&fit=crop&q=80',
+    '/images/Ambient-Lighting/IMG_9246.jpeg',
+    '/images/Ambient-Lighting/IMG_9247.jpeg',
+    '/images/Ambient-Lighting/IMG_9251.jpeg',
+    '/images/Ambient-Lighting/IMG_9252.jpeg',
+    '/images/Ambient-Lighting/IMG_9253.jpeg',
+    '/images/Ambient-Lighting/IMG_9257.jpeg',
+    '/images/Ambient-Lighting/IMG_9258.jpeg',
+    '/images/Ambient-Lighting/IMG_9269.jpeg',
+    '/images/Ambient-Lighting/IMG_9276.jpeg',
   ],
 }
-
-const FALLBACK = 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=700&h=440&fit=crop&q=80'
 
 function getImages(svc: Service, idx: number): string[] {
   const extras = EXTRA_IMAGES[idx]
   if (extras && extras.length > 0) return extras
-  return [svc.image || FALLBACK]
+  return [svc.image || '']
 }
 
 // DragScroll - lazy pointer capture so child buttons still receive click events
@@ -47,7 +72,6 @@ function DragScroll({ children, className, style }: { children: React.ReactNode;
     captured.current = false
     startX.current   = e.clientX
     scrollX.current  = ref.current.scrollLeft
-    // Do NOT capture here - wait for real movement so taps still fire onClick on children
   }
   function onPointerMove(e: React.PointerEvent) {
     if (!active.current || !ref.current) return
@@ -218,7 +242,6 @@ function Lightbox({ services, icons, initialIdx, onClose }: {
     dragRef.current = { sx: clientX, sy: clientY, px: panRef.current.x, py: panRef.current.y, moved: false }
     setDragging(true)
   }
-
   function moveDrag(clientX: number, clientY: number) {
     if (!dragRef.current) return
     const dx = clientX - dragRef.current.sx
@@ -231,7 +254,6 @@ function Lightbox({ services, icons, initialIdx, onClose }: {
       applyTransform(zoomRef.current, nx, ny, false)
     }
   }
-
   function endDrag() {
     if (!dragRef.current) return
     const wasMoved = dragRef.current.moved
@@ -242,11 +264,7 @@ function Lightbox({ services, icons, initialIdx, onClose }: {
       else resetView()
     }
   }
-
-  function cancelDrag() {
-    dragRef.current = null
-    setDragging(false)
-  }
+  function cancelDrag() { dragRef.current = null; setDragging(false) }
 
   function onMouseDown(e: React.MouseEvent) { e.preventDefault(); startDrag(e.clientX, e.clientY) }
   function onMouseMove(e: React.MouseEvent) { moveDrag(e.clientX, e.clientY) }
