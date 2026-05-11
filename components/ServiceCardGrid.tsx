@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 
 type Service = { name?: string; desc?: string; image?: string }
 
@@ -37,21 +37,16 @@ const EXTRA_IMAGES: Record<number, string[]> = {
 
 function getImages(svc: Service, idx: number): string[] {
   const extras = EXTRA_IMAGES[idx]
-  return (extras && extras.length > 0) ? extras : [svc.image || '']
+  return extras && extras.length > 0 ? extras : [svc.image || '']
 }
 
-// Horizontally scrollable row with drag support and lazy pointer capture
-// so child buttons still receive click events.
+// Scrollable row — lazy pointer capture so child buttons still get clicks
 function DragScroll({ children, className, style }: {
-  children: React.ReactNode
-  className?: string
-  style?: React.CSSProperties
+  children: React.ReactNode; className?: string; style?: React.CSSProperties
 }) {
-  const ref      = useRef<HTMLDivElement>(null)
-  const startX   = useRef(0)
-  const scrollX  = useRef(0)
-  const active   = useRef(false)
-  const captured = useRef(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const startX = useRef(0); const scrollX = useRef(0)
+  const active = useRef(false); const captured = useRef(false)
 
   function onPointerDown(e: React.PointerEvent) {
     if (!ref.current) return
@@ -60,10 +55,8 @@ function DragScroll({ children, className, style }: {
   }
   function onPointerMove(e: React.PointerEvent) {
     if (!active.current || !ref.current) return
-    const dx = Math.abs(e.clientX - startX.current)
-    if (!captured.current && dx > 4) {
-      captured.current = true
-      ref.current.setPointerCapture(e.pointerId)
+    if (!captured.current && Math.abs(e.clientX - startX.current) > 4) {
+      captured.current = true; ref.current.setPointerCapture(e.pointerId)
       ref.current.style.cursor = 'grabbing'
     }
     if (captured.current) ref.current.scrollLeft = scrollX.current - (e.clientX - startX.current)
@@ -90,7 +83,7 @@ function DragScroll({ children, className, style }: {
   )
 }
 
-// Service card shown in the grid
+// Service card in grid
 function ServiceCard({ svc, idx, icon, onOpen }: {
   svc: Service; idx: number; icon: string; onOpen: (i: number) => void
 }) {
@@ -146,172 +139,337 @@ function ServiceCard({ svc, idx, icon, onOpen }: {
   )
 }
 
-// Arrow button — blocks all touch/pointer/mouse events from reaching the image
-// area so they can never accidentally trigger swipe logic.
+// Arrow button — fully isolated from image-area touch/pointer events
 function ArrowBtn({ dir, onClick }: { dir: 'prev' | 'next'; onClick: () => void }) {
-  function block(e: React.SyntheticEvent) { e.stopPropagation() }
+  function stop(e: React.SyntheticEvent) { e.stopPropagation() }
   return (
     <button
-      onTouchStart={block} onTouchEnd={block} onTouchMove={block}
-      onPointerDown={block} onMouseDown={block}
-      onClick={(e) => { e.stopPropagation(); onClick() }}
+      onTouchStart={stop} onTouchMove={stop} onTouchEnd={stop}
+      onPointerDown={stop} onMouseDown={stop}
+      onClick={e => { e.stopPropagation(); onClick() }}
+      aria-label={dir === 'prev' ? 'Previous' : 'Next'}
       style={{
         position: 'absolute', top: '50%', transform: 'translateY(-50%)', zIndex: 10,
         [dir === 'prev' ? 'left' : 'right']: 8,
-        width: 40, height: 40, borderRadius: '50%', display: 'flex',
-        alignItems: 'center', justifyContent: 'center', fontSize: 18,
-        background: 'rgba(10,10,10,0.75)', border: '1px solid rgba(200,168,75,0.4)',
-        color: 'var(--gold)', cursor: 'pointer', touchAction: 'none',
-      }}
-      aria-label={dir === 'prev' ? 'Previous' : 'Next'}>
+        width: 40, height: 40, borderRadius: '50%',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: 18, fontWeight: 600, cursor: 'pointer', touchAction: 'none',
+        background: 'rgba(10,10,10,0.78)', border: '1px solid rgba(200,168,75,0.45)',
+        color: 'var(--gold)',
+      }}>
       {dir === 'prev' ? '<' : '>'}
     </button>
   )
 }
 
-// Lightbox — simple, no zoom, no fullscreen.
-// Navigate with swipe, arrows, thumbnails, or keyboard arrows.
+// Lightbox
+// - Centered modal on all screen sizes
+// - Tap image  → zoom in (2.5x); tap again → zoom out
+// - Drag / touch-drag → pan while zoomed
+// - Swipe left/right → navigate (only when not zoomed)
+// - +/- buttons in header → zoom
+// - Thumbnails → jump to image
+// - Service tabs → switch service
+// - Zoom uses actual width/height (not CSS scale) for crisp rendering
 function Lightbox({ services, icons, initialIdx, onClose }: {
   services: Service[]; icons: string[]; initialIdx: number; onClose: () => void
 }) {
   const [svcIdx, setSvcIdx] = useState(initialIdx)
   const [imgIdx, setImgIdx] = useState(0)
-  const swipeRef = useRef<{ x: number; y: number } | null>(null)
+  const [zoom, setZoom]     = useState(1)
+  const [hint, setHint]     = useState<string>('')
+
+  const panRef      = useRef({ x: 0, y: 0 })
+  const imgLayerRef = useRef<HTMLDivElement>(null)
+  const zoomRef     = useRef(1)
+
+  // Touch tracking
+  const touchRef = useRef<{ x: number; y: number; moved: boolean } | null>(null)
+  const panDrag  = useRef<{ sx: number; sy: number; px: number; py: number } | null>(null)
+  // Mouse tracking (desktop pan)
+  const mouseDrag = useRef<{ sx: number; sy: number; px: number; py: number } | null>(null)
 
   const svc    = services[svcIdx]
   const images = getImages(svc, svcIdx)
 
-  // Reset image index when switching service
-  useEffect(() => { setImgIdx(0) }, [svcIdx])
+  useEffect(() => { zoomRef.current = zoom }, [zoom])
 
-  // Lock body scroll while open
+  // Size-based zoom: increases actual render dimensions so browser draws
+  // from full-res source rather than scaling a downsampled bitmap.
+  const applyTransform = useCallback((z: number, px: number, py: number, animated = false) => {
+    if (!imgLayerRef.current) return
+    imgLayerRef.current.style.transition = animated
+      ? 'width 0.2s ease, height 0.2s ease, transform 0.2s ease' : 'none'
+    imgLayerRef.current.style.width     = `${z * 100}%`
+    imgLayerRef.current.style.height    = `${z * 100}%`
+    imgLayerRef.current.style.transform = `translate(calc(-50% + ${px}px), calc(-50% + ${py}px))`
+  }, [])
+
+  const resetZoom = useCallback(() => {
+    panRef.current = { x: 0, y: 0 }
+    setZoom(1)
+    applyTransform(1, 0, 0, true)
+  }, [applyTransform])
+
+  // Sync transform whenever zoom changes via +/- buttons
+  useEffect(() => {
+    applyTransform(zoom, panRef.current.x, panRef.current.y, true)
+  }, [zoom, applyTransform])
+
+  const prev = useCallback(() => { setImgIdx(i => (i - 1 + images.length) % images.length); resetZoom() }, [images.length, resetZoom])
+  const next = useCallback(() => { setImgIdx(i => (i + 1) % images.length); resetZoom() }, [images.length, resetZoom])
+
+  useEffect(() => { setImgIdx(0); resetZoom() }, [svcIdx, resetZoom])
+
   useEffect(() => {
     document.body.style.overflow = 'hidden'
     return () => { document.body.style.overflow = '' }
   }, [])
 
-  // Keyboard navigation
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape')     onClose()
-      if (e.key === 'ArrowLeft')  setImgIdx(i => (i - 1 + images.length) % images.length)
-      if (e.key === 'ArrowRight') setImgIdx(i => (i + 1) % images.length)
+      if (e.key === 'Escape')     { zoomRef.current > 1 ? resetZoom() : onClose() }
+      if (e.key === 'ArrowLeft')  prev()
+      if (e.key === 'ArrowRight') next()
+      if (e.key === '+')          setZoom(z => Math.min(+(z + 0.5).toFixed(1), 4))
+      if (e.key === '-')          setZoom(z => {
+        const nz = Math.max(+(z - 0.5).toFixed(1), 1)
+        if (nz === 1) panRef.current = { x: 0, y: 0 }
+        return nz
+      })
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [onClose, images.length])
+  }, [onClose, prev, next, resetZoom])
 
-  function prev() { setImgIdx(i => (i - 1 + images.length) % images.length) }
-  function next() { setImgIdx(i => (i + 1) % images.length) }
-
-  // Touch swipe handlers on the image area
+  // ── Touch handlers ────────────────────────────────────────────────────────
   function onTouchStart(e: React.TouchEvent) {
-    swipeRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+    if (e.touches.length !== 1) return
+    const t = e.touches[0]
+    if (zoomRef.current > 1) {
+      panDrag.current = { sx: t.clientX, sy: t.clientY, px: panRef.current.x, py: panRef.current.y }
+    } else {
+      touchRef.current = { x: t.clientX, y: t.clientY, moved: false }
+    }
+  }
+  function onTouchMove(e: React.TouchEvent) {
+    if (e.touches.length !== 1) return
+    const t = e.touches[0]
+    if (zoomRef.current > 1 && panDrag.current) {
+      e.preventDefault()
+      const nx = panDrag.current.px + (t.clientX - panDrag.current.sx)
+      const ny = panDrag.current.py + (t.clientY - panDrag.current.sy)
+      panRef.current = { x: nx, y: ny }
+      applyTransform(zoomRef.current, nx, ny, false)
+    } else if (touchRef.current) {
+      if (Math.abs(t.clientX - touchRef.current.x) > 6 || Math.abs(t.clientY - touchRef.current.y) > 6) {
+        touchRef.current.moved = true
+      }
+    }
   }
   function onTouchEnd(e: React.TouchEvent) {
-    if (!swipeRef.current) return
-    const dx = e.changedTouches[0].clientX - swipeRef.current.x
-    const dy = e.changedTouches[0].clientY - swipeRef.current.y
-    swipeRef.current = null
-    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+    if (panDrag.current) { panDrag.current = null; return }
+    if (!touchRef.current) return
+    const t  = e.changedTouches[0]
+    const dx = t.clientX - touchRef.current.x
+    const dy = t.clientY - touchRef.current.y
+    const moved = touchRef.current.moved
+    touchRef.current = null
+
+    if (!moved) {
+      // Tap: toggle zoom
+      if (zoomRef.current === 1) {
+        const nz = 2.5
+        setZoom(nz)
+        applyTransform(nz, 0, 0, true)
+        setHint('Drag to pan | Tap to reset')
+      } else {
+        resetZoom()
+        setHint('')
+      }
+    } else if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      // Swipe to navigate (only when not zoomed)
       dx < 0 ? next() : prev()
     }
   }
-  function onTouchCancel() { swipeRef.current = null }
+  function onTouchCancel() { touchRef.current = null; panDrag.current = null }
+
+  // ── Mouse handlers (desktop pan when zoomed) ──────────────────────────────
+  function onMouseDown(e: React.MouseEvent) {
+    if (zoomRef.current <= 1) return
+    e.preventDefault()
+    mouseDrag.current = { sx: e.clientX, sy: e.clientY, px: panRef.current.x, py: panRef.current.y }
+  }
+  function onMouseMove(e: React.MouseEvent) {
+    if (!mouseDrag.current) return
+    const nx = mouseDrag.current.px + (e.clientX - mouseDrag.current.sx)
+    const ny = mouseDrag.current.py + (e.clientY - mouseDrag.current.sy)
+    panRef.current = { x: nx, y: ny }
+    applyTransform(zoomRef.current, nx, ny, false)
+  }
+  function onMouseUp()    { mouseDrag.current = null }
+  function onMouseLeave() { mouseDrag.current = null }
+
+  // ── Scroll-wheel zoom (desktop) ───────────────────────────────────────────
+  function onWheel(e: React.WheelEvent) {
+    e.preventDefault()
+    setZoom(z => {
+      const nz = Math.min(Math.max(+(z - e.deltaY * 0.003).toFixed(2), 1), 4)
+      if (nz === 1) panRef.current = { x: 0, y: 0 }
+      return nz
+    })
+  }
+
+  function zoomIn()  { setZoom(z => Math.min(+(z + 0.5).toFixed(1), 4)) }
+  function zoomOut() {
+    setZoom(z => {
+      const nz = Math.max(+(z - 0.5).toFixed(1), 1)
+      if (nz === 1) { panRef.current = { x: 0, y: 0 }; setHint('') }
+      return nz
+    })
+  }
+
+  const hintText = hint || (zoom === 1 ? (images.length > 1 ? 'Swipe or tap to zoom' : 'Tap to zoom') : '')
 
   return (
-    // Backdrop
     <div onClick={onClose} style={{
       position: 'fixed', inset: 0, zIndex: 50,
       background: 'rgba(0,0,0,0.88)',
-      display: 'flex', alignItems: 'flex-end',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: '12px',
     }}>
-      {/* Sheet — slides up from bottom */}
       <div onClick={e => e.stopPropagation()} style={{
-        width: '100%', maxWidth: 600, margin: '0 auto',
-        background: '#111', borderRadius: '16px 16px 0 0',
+        width: '100%', maxWidth: 576,
+        background: '#111', borderRadius: 16,
         border: '1px solid rgba(200,168,75,0.2)',
-        borderBottom: 'none',
         display: 'flex', flexDirection: 'column',
         maxHeight: '92dvh', overflow: 'hidden',
       }}>
 
-        {/* Header */}
+        {/* ── Header ─────────────────────────────────────────────────────── */}
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '12px 16px', borderBottom: '1px solid var(--line)', flexShrink: 0,
+          padding: '10px 14px', borderBottom: '1px solid var(--line)', flexShrink: 0,
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
             <span style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              width: 28, height: 28, borderRadius: 8, fontSize: 11, fontWeight: 700,
+              width: 28, height: 28, borderRadius: 8, fontSize: 11, fontWeight: 700, flexShrink: 0,
               background: 'rgba(200,168,75,0.12)', border: '1px solid rgba(200,168,75,0.35)',
               color: 'var(--gold)',
             }}>{icons[svcIdx]}</span>
-            <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{svc?.name}</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{svc?.name}</span>
             {images.length > 1 && (
-              <span style={{ fontSize: 12, color: 'var(--muted)' }}>{imgIdx + 1} / {images.length}</span>
+              <span style={{ fontSize: 11, color: 'var(--muted)', flexShrink: 0 }}>{imgIdx + 1}/{images.length}</span>
             )}
           </div>
-          <button onClick={onClose} style={{
-            width: 32, height: 32, borderRadius: 8, display: 'flex',
-            alignItems: 'center', justifyContent: 'center', fontSize: 13,
-            background: 'transparent', border: '1px solid var(--line)',
-            color: 'var(--muted)', cursor: 'pointer',
-          }} aria-label="Close">X</button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+            <button onClick={zoomOut} disabled={zoom <= 1}
+              style={{
+                width: 30, height: 30, borderRadius: 8, border: '1px solid var(--line)',
+                background: 'transparent', color: 'var(--muted)', fontSize: 16,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', opacity: zoom <= 1 ? 0.3 : 1,
+              }} aria-label="Zoom out">-</button>
+            <span style={{ fontSize: 11, fontWeight: 600, minWidth: 32, textAlign: 'center',
+              color: zoom > 1 ? 'var(--gold-light)' : 'var(--muted)' }}>
+              {zoom === 1 ? '1x' : `${zoom.toFixed(1)}x`}
+            </span>
+            <button onClick={zoomIn} disabled={zoom >= 4}
+              style={{
+                width: 30, height: 30, borderRadius: 8, border: '1px solid var(--line)',
+                background: 'transparent', color: 'var(--muted)', fontSize: 16,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', opacity: zoom >= 4 ? 0.3 : 1,
+              }} aria-label="Zoom in">+</button>
+            <button onClick={onClose}
+              style={{
+                width: 30, height: 30, borderRadius: 8, border: '1px solid var(--line)',
+                background: 'transparent', color: 'var(--muted)', fontSize: 12,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', marginLeft: 2,
+              }} aria-label="Close">X</button>
+          </div>
         </div>
 
-        {/* Image area */}
+        {/* ── Image area ─────────────────────────────────────────────────── */}
         <div
-          onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} onTouchCancel={onTouchCancel}
+          onTouchStart={onTouchStart} onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd} onTouchCancel={onTouchCancel}
+          onMouseDown={onMouseDown} onMouseMove={onMouseMove}
+          onMouseUp={onMouseUp} onMouseLeave={onMouseLeave}
+          onWheel={onWheel}
           style={{
-            position: 'relative', background: '#000', flexShrink: 0,
+            position: 'relative', flexShrink: 0, overflow: 'hidden',
+            background: '#000',
             height: '56vw', maxHeight: 380, minHeight: 200,
+            cursor: zoom > 1 ? 'grab' : 'default',
           }}>
-          {images.map((src, i) => (
-            <img key={src} src={src} alt={`${svc?.name ?? ''} ${i + 1}`}
-              draggable={false}
-              style={{
-                position: 'absolute', inset: 0, width: '100%', height: '100%',
-                objectFit: 'contain', userSelect: 'none', pointerEvents: 'none',
-                opacity: i === imgIdx ? 1 : 0, transition: 'opacity 0.22s ease',
-              }} />
-          ))}
+          {/* imgLayer: sized by zoom for crisp rendering */}
+          <div ref={imgLayerRef} style={{
+            position: 'absolute', left: '50%', top: '50%',
+            width: '100%', height: '100%',
+            transform: 'translate(-50%, -50%)',
+          }}>
+            {images.map((src, i) => (
+              <img key={src} src={src} alt={`${svc?.name ?? ''} ${i + 1}`}
+                draggable={false}
+                style={{
+                  position: 'absolute', inset: 0, width: '100%', height: '100%',
+                  objectFit: 'contain', pointerEvents: 'none', userSelect: 'none',
+                  opacity: i === imgIdx ? 1 : 0, transition: 'opacity 0.22s ease',
+                }} />
+            ))}
+          </div>
 
-          {images.length > 1 && (
+          {/* Arrows */}
+          {images.length > 1 && zoom === 1 && (
             <>
               <ArrowBtn dir="prev" onClick={prev} />
               <ArrowBtn dir="next" onClick={next} />
-              {/* Dot indicators */}
-              <div style={{
-                position: 'absolute', bottom: 8, left: 0, right: 0,
-                display: 'flex', justifyContent: 'center', gap: 6, pointerEvents: 'none',
-              }}>
-                {images.map((_, i) => (
-                  <div key={i} style={{
-                    height: 6, borderRadius: 3,
-                    width: i === imgIdx ? 14 : 6,
-                    background: i === imgIdx ? 'var(--gold)' : 'rgba(255,255,255,0.35)',
-                    transition: 'all 0.25s',
-                  }} />
-                ))}
-              </div>
             </>
+          )}
+
+          {/* Hint */}
+          {hintText && (
+            <div style={{
+              position: 'absolute', bottom: 8, right: 8, zIndex: 10, pointerEvents: 'none',
+              background: 'rgba(10,10,10,0.65)', borderRadius: 6, padding: '3px 8px',
+              fontSize: 10, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase',
+              color: 'rgba(232,192,96,0.8)',
+            }}>{hintText}</div>
+          )}
+
+          {/* Dots */}
+          {images.length > 1 && zoom === 1 && (
+            <div style={{
+              position: 'absolute', bottom: 8, left: 0, right: 0,
+              display: 'flex', justifyContent: 'center', gap: 6, pointerEvents: 'none',
+            }}>
+              {images.map((_, i) => (
+                <div key={i} style={{
+                  height: 6, borderRadius: 3,
+                  width: i === imgIdx ? 14 : 6,
+                  background: i === imgIdx ? 'var(--gold)' : 'rgba(255,255,255,0.35)',
+                  transition: 'all 0.25s',
+                }} />
+              ))}
+            </div>
           )}
         </div>
 
-        {/* Thumbnails */}
+        {/* ── Thumbnails ──────────────────────────────────────────────────── */}
         {images.length > 1 && (
           <DragScroll className="px-3 py-2 flex-shrink-0"
             style={{ borderTop: '1px solid var(--line)' }}>
             {images.map((src, i) => (
-              <button key={i} onClick={() => setImgIdx(i)}
+              <button key={i} onClick={() => { setImgIdx(i); resetZoom() }}
                 style={{
                   flexShrink: 0, width: 64, height: 48, borderRadius: 8,
-                  overflow: 'hidden', padding: 0,
+                  overflow: 'hidden', padding: 0, cursor: 'pointer',
+                  background: 'transparent',
                   border: i === imgIdx ? '2px solid var(--gold)' : '2px solid rgba(255,255,255,0.08)',
                   opacity: i === imgIdx ? 1 : 0.45,
-                  cursor: 'pointer', background: 'transparent',
                 }}>
                 <img src={src} alt="" draggable={false}
                   style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
@@ -320,7 +478,7 @@ function Lightbox({ services, icons, initialIdx, onClose }: {
           </DragScroll>
         )}
 
-        {/* Service switcher */}
+        {/* ── Service tabs ────────────────────────────────────────────────── */}
         {services.length > 1 && (
           <DragScroll className="px-3 pb-3 pt-2 flex-shrink-0"
             style={{ borderTop: '1px solid var(--line)' }}>
@@ -345,8 +503,7 @@ function Lightbox({ services, icons, initialIdx, onClose }: {
 
 // Grid
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
-  services: Service[]
-  icons: string[]
+  services: Service[]; icons: string[]
 }
 
 export default function ServiceCardGrid({ services, icons, ...rest }: Props) {
@@ -356,7 +513,7 @@ export default function ServiceCardGrid({ services, icons, ...rest }: Props) {
       <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2" {...rest}>
         {services.map((svc, i) => (
           <ServiceCard key={i} svc={svc} idx={i}
-            icon={icons[i] ?? String(i + 1).padStart(2, '0')}
+            icon={icons[i] ?? String(i + 1).padStart(2, '00')}
             onOpen={setLightboxIdx} />
         ))}
       </div>
