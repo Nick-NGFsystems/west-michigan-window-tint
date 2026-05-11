@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getNgfContent, getItems } from '@/lib/ngf'
 import GalleryCarousel from '@/components/GalleryCarousel'
+import ServiceCardGrid from '@/components/ServiceCardGrid'
 
 export const dynamic = 'force-dynamic'
 
@@ -226,60 +227,15 @@ export default async function HomePage() {
               {servicesSubtitle}
             </p>
           </div>
-          <div
+          <ServiceCardGrid
+            services={services}
+            icons={serviceIcons}
             data-ngf-group="services.items"
             data-ngf-item-label="Service"
             data-ngf-min-items="1"
             data-ngf-max-items="8"
             data-ngf-item-fields='[{"key":"image","label":"Photo","type":"image"},{"key":"name","label":"Service Name","type":"text"},{"key":"desc","label":"Description","type":"textarea"}]'
-            className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2"
-          >
-            {services.map((svc, i) => (
-              <div key={i} className="panel-gold flex flex-col overflow-hidden transition-all hover:border-[rgba(200,168,75,0.45)]">
-                {/* Service image */}
-                <div className="relative h-44 w-full overflow-hidden">
-                  <img
-                    src={svc.image || 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=600&h=280&fit=crop&q=80'}
-                    alt={svc.name ?? ''}
-                    data-ngf-field={`services.items.${i}.image`}
-                    data-ngf-label="Photo"
-                    data-ngf-type="image"
-                    data-ngf-section="Services"
-                    className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
-                  />
-                  <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 50%, rgba(10,10,10,0.7) 100%)' }} />
-                  <div
-                    className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-lg text-xs font-bold tracking-widest"
-                    style={{ background: 'rgba(10,10,10,0.7)', border: '1px solid rgba(200,168,75,0.4)', color: 'var(--gold)' }}
-                  >
-                    {serviceIcons[i] ?? '✦'}
-                  </div>
-                </div>
-                {/* Service text */}
-                <div className="flex flex-col gap-2 p-5">
-                  <h3
-                    data-ngf-field={`services.items.${i}.name`}
-                    data-ngf-label="Service Name"
-                    data-ngf-type="text"
-                    data-ngf-section="Services"
-                    className="text-base font-semibold text-[var(--text)]"
-                  >
-                    {svc.name ?? ''}
-                  </h3>
-                  <p
-                    data-ngf-field={`services.items.${i}.desc`}
-                    data-ngf-label="Description"
-                    data-ngf-type="textarea"
-                    data-ngf-section="Services"
-                    className="text-sm leading-relaxed"
-                    style={{ color: 'var(--muted)' }}
-                  >
-                    {svc.desc ?? ''}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+          />
         </div>
       </section>
 
