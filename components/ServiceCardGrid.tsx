@@ -32,7 +32,7 @@ function getImages(svc: Service, idx: number): string[] {
   return [svc.image || FALLBACK]
 }
 
-// ── DragScroll — reusable horizontal drag-to-scroll strip ─────────────────────
+// DragScroll - reusable horizontal drag-to-scroll strip
 
 function DragScroll({ children, className, style }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
   const ref      = useRef<HTMLDivElement>(null)
@@ -77,7 +77,7 @@ function DragScroll({ children, className, style }: { children: React.ReactNode;
   )
 }
 
-// ── ServiceCard ────────────────────────────────────────────────────────────────
+// ServiceCard
 
 function ServiceCard({ svc, idx, icon, onOpen }: { svc: Service; idx: number; icon: string; onOpen: (i: number) => void }) {
   const images = getImages(svc, idx)
@@ -129,7 +129,7 @@ function ServiceCard({ svc, idx, icon, onOpen }: { svc: Service; idx: number; ic
   )
 }
 
-// ── Lightbox ──────────────────────────────────────────────────────────────────
+// Lightbox
 
 type DragState = { sx: number; sy: number; px: number; py: number; moved: boolean }
 
@@ -142,7 +142,6 @@ function Lightbox({ services, icons, initialIdx, onClose }: {
   const [dragging, setDragging] = useState(false)
   const [isFS, setIsFS]       = useState(false)
 
-  // Refs — for things that must not cause re-renders during drag
   const panRef   = useRef({ x: 0, y: 0 })
   const dragRef  = useRef<DragState | null>(null)
   const imgLayer = useRef<HTMLDivElement>(null)
@@ -152,10 +151,8 @@ function Lightbox({ services, icons, initialIdx, onClose }: {
   const svc    = services[svcIdx]
   const images = getImages(svc, svcIdx)
 
-  // Keep zoomRef mirrored to zoom state (for use inside event handlers without stale closure)
   useEffect(() => { zoomRef.current = zoom }, [zoom])
 
-  // Write transform directly to DOM — zero React re-renders during drag
   const applyTransform = useCallback((z: number, px: number, py: number, animated = false) => {
     if (!imgLayer.current) return
     imgLayer.current.style.transition = animated ? 'transform 0.18s ease' : 'none'
@@ -168,7 +165,6 @@ function Lightbox({ services, icons, initialIdx, onClose }: {
     applyTransform(1, 0, 0, true)
   }, [applyTransform])
 
-  // Sync transform when zoom changes via buttons / keyboard (not during drag)
   useEffect(() => {
     applyTransform(zoom, panRef.current.x, panRef.current.y, true)
   }, [zoom, applyTransform])
@@ -178,13 +174,11 @@ function Lightbox({ services, icons, initialIdx, onClose }: {
 
   useEffect(() => { setImgIdx(0); resetView() }, [svcIdx, resetView])
 
-  // Lock body scroll
   useEffect(() => {
     document.body.style.overflow = 'hidden'
     return () => { document.body.style.overflow = '' }
   }, [])
 
-  // Fullscreen
   useEffect(() => {
     const h = () => setIsFS(!!document.fullscreenElement)
     document.addEventListener('fullscreenchange', h)
@@ -196,7 +190,6 @@ function Lightbox({ services, icons, initialIdx, onClose }: {
     else document.exitFullscreen().catch(() => {})
   }
 
-  // Keyboard
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape')     { if (zoomRef.current > 1) resetView(); else onClose() }
@@ -208,8 +201,6 @@ function Lightbox({ services, icons, initialIdx, onClose }: {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose, prev, next, resetView])
-
-  // ── Drag helpers ─────────────────────────────────────────────────────────────
 
   function startDrag(clientX: number, clientY: number) {
     dragRef.current = { sx: clientX, sy: clientY, px: panRef.current.x, py: panRef.current.y, moved: false }
@@ -245,13 +236,11 @@ function Lightbox({ services, icons, initialIdx, onClose }: {
     setDragging(false)
   }
 
-  // Mouse
   function onMouseDown(e: React.MouseEvent) { e.preventDefault(); startDrag(e.clientX, e.clientY) }
   function onMouseMove(e: React.MouseEvent) { moveDrag(e.clientX, e.clientY) }
   function onMouseUp()                      { endDrag() }
-  function onMouseLeave()                   { cancelDrag() }  // always cancel on leave
+  function onMouseLeave()                   { cancelDrag() }
 
-  // Touch
   function onTouchStart(e: React.TouchEvent) {
     if (e.touches.length === 1) startDrag(e.touches[0].clientX, e.touches[0].clientY)
   }
@@ -260,10 +249,9 @@ function Lightbox({ services, icons, initialIdx, onClose }: {
     if (zoomRef.current > 1) e.preventDefault()
     moveDrag(e.touches[0].clientX, e.touches[0].clientY)
   }
-  function onTouchEnd()   { endDrag() }
+  function onTouchEnd()    { endDrag() }
   function onTouchCancel() { cancelDrag() }
 
-  // Wheel zoom on image area
   function onImgWheel(e: React.WheelEvent) {
     e.preventDefault()
     setZoom(z => {
@@ -275,8 +263,6 @@ function Lightbox({ services, icons, initialIdx, onClose }: {
 
   function zoomIn()  { setZoom(z => Math.min(+(z + 0.5).toFixed(1), 4)) }
   function zoomOut() { setZoom(z => { const nz = Math.max(+(z - 0.5).toFixed(1), 1); if (nz === 1) panRef.current = { x: 0, y: 0 }; return nz }) }
-
-  // ── Derived styles ────────────────────────────────────────────────────────────
 
   const cursor = zoom > 1 ? (dragging ? 'grabbing' : 'grab') : 'zoom-in'
 
@@ -294,7 +280,7 @@ function Lightbox({ services, icons, initialIdx, onClose }: {
       <div ref={modalRef} className="relative w-full sm:max-w-xl overflow-hidden"
         style={modalStyle} onClick={e => e.stopPropagation()}>
 
-        {/* ── Header ── */}
+        {/* Header */}
         <div className="flex flex-shrink-0 items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid var(--line)' }}>
           <div className="flex items-center gap-2">
             <span className="flex h-7 w-7 items-center justify-center rounded-lg text-xs font-bold"
@@ -307,10 +293,10 @@ function Lightbox({ services, icons, initialIdx, onClose }: {
           <div className="flex items-center gap-1">
             <button onClick={zoomOut} disabled={zoom <= 1}
               className="flex h-7 w-7 items-center justify-center rounded-lg text-base transition-colors disabled:opacity-30 hover:text-[var(--gold)]"
-              style={{ color: 'var(--muted)', border: '1px solid var(--line)' }} aria-label="Zoom out">−</button>
+              style={{ color: 'var(--muted)', border: '1px solid var(--line)' }} aria-label="Zoom out">-</button>
             <span className="min-w-[34px] text-center text-[11px] font-semibold tabular-nums"
               style={{ color: zoom > 1 ? 'var(--gold-light)' : 'var(--muted)' }}>
-              {zoom === 1 ? '1×' : `${zoom.toFixed(1)}×`}
+              {zoom === 1 ? '1x' : `${zoom.toFixed(1)}x`}
             </span>
             <button onClick={zoomIn} disabled={zoom >= 4}
               className="flex h-7 w-7 items-center justify-center rounded-lg text-base transition-colors disabled:opacity-30 hover:text-[var(--gold)]"
@@ -318,20 +304,19 @@ function Lightbox({ services, icons, initialIdx, onClose }: {
             <button onClick={toggleFS}
               className="flex h-7 items-center justify-center rounded-lg text-xs ml-1 transition-colors hover:text-[var(--gold)]"
               style={{ color: 'var(--muted)', border: '1px solid var(--line)', minWidth: '28px', padding: '0 8px' }} aria-label="Fullscreen">
-              {isFS ? 'Exit' : '⛶'}
+              {isFS ? 'Exit' : 'FS'}
             </button>
             <button onClick={onClose}
               className="flex h-7 w-7 items-center justify-center rounded-lg text-sm ml-0.5 transition-colors hover:text-[var(--gold)]"
-              style={{ color: 'var(--muted)', border: '1px solid var(--line)' }} aria-label="Close">✕</button>
+              style={{ color: 'var(--muted)', border: '1px solid var(--line)' }} aria-label="Close">X</button>
           </div>
         </div>
 
-        {/* ── Image area ── */}
+        {/* Image area */}
         <div style={{ ...imgAreaStyle, cursor }}
           onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={onMouseUp} onMouseLeave={onMouseLeave}
           onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} onTouchCancel={onTouchCancel}
           onWheel={onImgWheel}>
-          {/* Single transform layer — direct DOM writes during drag, no re-renders */}
           <div ref={imgLayer} className="absolute inset-0 will-change-transform" style={{ transformOrigin: 'center center' }}>
             {images.map((src, i) => (
               <img key={src} src={src} alt={`${svc?.name ?? ''} ${i + 1}`} draggable={false}
@@ -341,26 +326,34 @@ function Lightbox({ services, icons, initialIdx, onClose }: {
             ))}
           </div>
 
-          {/* Prev / Next arrows — hidden when zoomed in */}
+          {/* Prev / Next arrows - hidden when zoomed in */}
           {images.length > 1 && zoom === 1 && (
             <>
-              <button onClick={e => { e.stopPropagation(); prev() }}
+              <button
+                onMouseDown={e => e.stopPropagation()}
+                onClick={e => { e.stopPropagation(); prev() }}
                 className="absolute left-2 top-1/2 -translate-y-1/2 z-10 flex h-9 w-9 items-center justify-center rounded-full text-xl transition-all active:scale-95"
-                style={{ background: 'rgba(10,10,10,0.7)', border: '1px solid rgba(200,168,75,0.35)', color: 'var(--gold)' }}>&#8249;</button>
-              <button onClick={e => { e.stopPropagation(); next() }}
+                style={{ background: 'rgba(10,10,10,0.7)', border: '1px solid rgba(200,168,75,0.35)', color: 'var(--gold)' }}>
+                {'<'}
+              </button>
+              <button
+                onMouseDown={e => e.stopPropagation()}
+                onClick={e => { e.stopPropagation(); next() }}
                 className="absolute right-2 top-1/2 -translate-y-1/2 z-10 flex h-9 w-9 items-center justify-center rounded-full text-xl transition-all active:scale-95"
-                style={{ background: 'rgba(10,10,10,0.7)', border: '1px solid rgba(200,168,75,0.35)', color: 'var(--gold)' }}>&#8250;</button>
+                style={{ background: 'rgba(10,10,10,0.7)', border: '1px solid rgba(200,168,75,0.35)', color: 'var(--gold)' }}>
+                {'>'}
+              </button>
             </>
           )}
 
-          {/* Zoom hint overlay */}
+          {/* Zoom hint */}
           <div className="pointer-events-none absolute bottom-2 right-2 z-10 rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider"
             style={{ background: 'rgba(10,10,10,0.6)', color: 'rgba(232,192,96,0.7)' }}>
             {zoom > 1 ? 'Click to reset' : 'Click to zoom'}
           </div>
         </div>
 
-        {/* ── Thumbnails (drag-scrollable) ── */}
+        {/* Thumbnails */}
         {images.length > 1 && (
           <DragScroll className="px-3 py-2 flex-shrink-0" style={{ borderTop: '1px solid var(--line)' }}>
             {images.map((src, i) => (
@@ -373,7 +366,7 @@ function Lightbox({ services, icons, initialIdx, onClose }: {
           </DragScroll>
         )}
 
-        {/* ── Service switcher (drag-scrollable) ── */}
+        {/* Service switcher */}
         {services.length > 1 && (
           <DragScroll className="px-3 pb-3 pt-2 flex-shrink-0" style={{ borderTop: '1px solid var(--line)' }}>
             {services.map((s, i) => (
@@ -390,7 +383,7 @@ function Lightbox({ services, icons, initialIdx, onClose }: {
   )
 }
 
-// ── Grid (default export) ─────────────────────────────────────────────────────
+// Grid (default export)
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> { services: Service[]; icons: string[] }
 
