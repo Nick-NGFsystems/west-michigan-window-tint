@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Outfit } from 'next/font/google'
 import NgfEditBridge from '@/components/NgfEditBridge'
 import './globals.css'
@@ -9,6 +9,13 @@ const outfit = Outfit({
   subsets: ['latin'],
   display: 'swap',
 })
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+}
 
 export const metadata: Metadata = {
   title: 'West Michigan Window Tint | Auto Tint, Vinyl Wrap & More',
@@ -24,10 +31,4 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={outfit.variable}>
-      <body className="antialiased" suppressHydrationWarning>
-        <NgfEditBridge />
-        {children}
-      </body>
-    </html>
-  )
-}
+    
