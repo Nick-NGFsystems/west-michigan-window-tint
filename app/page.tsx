@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { getNgfContent, getItems } from '@/lib/ngf'
-import GalleryCarousel from '@/components/GalleryCarousel'
 import ServiceCardGrid from '@/components/ServiceCardGrid'
 
 export const dynamic = 'force-dynamic'
@@ -60,36 +59,6 @@ export default async function HomePage() {
     { heading: 'Local & Accountable', body: 'You talk directly to Zach — not a call center. If something is not right, he will make it right.' },
   ]
 
-  // Gallery
-  const galleryTitle = content['gallery.title'] || 'Our Work'
-  const rawGallery   = getItems(content, 'gallery.photos')
-  const gallery = rawGallery.length > 0 ? rawGallery : [
-    {
-      image: 'https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?w=1200&h=675&fit=crop&q=85',
-      caption: 'Automobile Tint',
-    },
-    {
-      image: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=1200&h=675&fit=crop&q=85',
-      caption: 'Luxury Vehicle Tint',
-    },
-    {
-      image: 'https://images.unsplash.com/photo-1542362567-b07e54358753?w=1200&h=675&fit=crop&q=85',
-      caption: 'Vinyl Wrap',
-    },
-    {
-      image: 'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?w=1200&h=675&fit=crop&q=85',
-      caption: 'Ambient Lighting',
-    },
-    {
-      image: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=1200&h=675&fit=crop&q=85',
-      caption: 'Paint Protection Film',
-    },
-    {
-      image: 'https://images.unsplash.com/photo-1486496572940-2bb2341fdbdf?w=1200&h=675&fit=crop&q=85',
-      caption: 'Commercial Window Film',
-    },
-  ]
-
   // Bottom CTA
   const ctaTitle       = content['cta.title']       || 'Ready to book your install?'
   const ctaDescription = content['cta.description'] || 'Fill out a quick quote form and Zach will get back to you fast.'
@@ -127,7 +96,7 @@ export default async function HomePage() {
           </div>
           <nav className="hidden items-center gap-6 sm:flex">
             <Link href="#services" className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted)] hover:text-[var(--text)] transition-colors">Services</Link>
-            <Link href="#gallery" className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted)] hover:text-[var(--text)] transition-colors">Gallery</Link>
+            <Link href="#about" className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted)] hover:text-[var(--text)] transition-colors">Our Work</Link>
             <Link href="#why" className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted)] hover:text-[var(--text)] transition-colors">About</Link>
             <Link href="/quote" className="btn-gold text-xs">Get a Quote</Link>
           </nav>
@@ -239,8 +208,76 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Gallery — client carousel */}
-      <GalleryCarousel items={gallery} title={galleryTitle} />
+      {/* About Our Work */}
+      <section id="about" className="px-4 py-20 sm:px-6" style={{ background: 'var(--surface)', borderTop: '1px solid var(--line)', borderBottom: '1px solid var(--line)' }}>
+        <div className="mx-auto max-w-5xl">
+          {/* Header */}
+          <div className="text-center">
+            <span className="gold-chip">Our Work</span>
+            <h2 className="mt-5 text-3xl font-bold text-[var(--text)] sm:text-4xl">About What We Do</h2>
+            <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed sm:text-base" style={{ color: 'var(--muted)' }}>
+              Every job is done by hand, start to finish. No shortcuts, no rushing — just clean, professional installs that hold up long-term. Here is a closer look at each service we offer.
+            </p>
+          </div>
+
+          {/* Service detail cards */}
+          <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2">
+
+            {/* Automobile Tint */}
+            <div className="panel-gold flex flex-col gap-4 p-7">
+              <div className="flex items-center gap-3">
+                <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-xs font-bold tracking-widest"
+                  style={{ background: 'rgba(200,168,75,0.12)', border: '1px solid rgba(200,168,75,0.35)', color: 'var(--gold)' }}>01</span>
+                <h3 className="text-base font-semibold text-[var(--text)]">Automobile Window Tint</h3>
+              </div>
+              <div className="h-px w-full" style={{ background: 'var(--line)' }} />
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
+                We use professional-grade film cut precisely to each vehicle — sedans, trucks, SUVs, and everything in between. Tint keeps your interior cooler, protects against UV fading, and reduces glare without sacrificing visibility. Every install is done bubble-free and clean.
+              </p>
+            </div>
+
+            {/* Residential & Commercial */}
+            <div className="panel-gold flex flex-col gap-4 p-7">
+              <div className="flex items-center gap-3">
+                <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-xs font-bold tracking-widest"
+                  style={{ background: 'rgba(200,168,75,0.12)', border: '1px solid rgba(200,168,75,0.35)', color: 'var(--gold)' }}>02</span>
+                <h3 className="text-base font-semibold text-[var(--text)]">Residential & Commercial Film</h3>
+              </div>
+              <div className="h-px w-full" style={{ background: 'var(--line)' }} />
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
+                Window film for homes, offices, and storefronts that cuts energy costs, adds privacy, and blocks harmful UV rays — without making rooms feel dark. We work with windows of any size and can match the right film to your specific goals, whether that is heat rejection, privacy, or both.
+              </p>
+            </div>
+
+            {/* Vinyl Wrap */}
+            <div className="panel-gold flex flex-col gap-4 p-7">
+              <div className="flex items-center gap-3">
+                <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-xs font-bold tracking-widest"
+                  style={{ background: 'rgba(200,168,75,0.12)', border: '1px solid rgba(200,168,75,0.35)', color: 'var(--gold)' }}>03</span>
+                <h3 className="text-base font-semibold text-[var(--text)]">Vinyl Wrap</h3>
+              </div>
+              <div className="h-px w-full" style={{ background: 'var(--line)' }} />
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
+                Full vehicle wraps, partial color changes, and accent panels — all cut and applied by hand for a seamless, factory-quality finish. Vinyl wrap is one of the best ways to protect your factory paint while completely changing the look of your vehicle. Removable, durable, and done right.
+              </p>
+            </div>
+
+            {/* Ambient Lighting */}
+            <div className="panel-gold flex flex-col gap-4 p-7">
+              <div className="flex items-center gap-3">
+                <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-xs font-bold tracking-widest"
+                  style={{ background: 'rgba(200,168,75,0.12)', border: '1px solid rgba(200,168,75,0.35)', color: 'var(--gold)' }}>04</span>
+                <h3 className="text-base font-semibold text-[var(--text)]">Ambient Lighting</h3>
+              </div>
+              <div className="h-px w-full" style={{ background: 'var(--line)' }} />
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
+                Custom LED accent lighting installed cleanly inside your vehicle. We design the layout to suit your interior, run the wiring out of sight, and mount the lights exactly where they should be. No exposed wires, no dangling strips — just a clean, professional finish that transforms your cabin at night.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
 
       {/* Why Choose Us */}
       <section id="why" className="px-4 py-20 sm:px-6">
