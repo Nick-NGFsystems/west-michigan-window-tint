@@ -208,71 +208,97 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* About Our Work */}
+      {/* Reviews */}
       <section id="about" className="px-4 py-20 sm:px-6" style={{ background: 'var(--surface)', borderTop: '1px solid var(--line)', borderBottom: '1px solid var(--line)' }}>
         <div className="mx-auto max-w-5xl">
-          {/* Header */}
           <div className="text-center">
-            <span className="gold-chip">Our Work</span>
-            <h2 className="mt-5 text-3xl font-bold text-[var(--text)] sm:text-4xl">About What We Do</h2>
-            <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed sm:text-base" style={{ color: 'var(--muted)' }}>
-              Every job is done by hand, start to finish. No shortcuts, no rushing — just clean, professional installs that hold up long-term. Here is a closer look at each service we offer.
+            <span className="gold-chip">Reviews</span>
+            <h2 className="mt-5 text-3xl font-bold text-[var(--text)] sm:text-4xl">What Customers Are Saying</h2>
+            <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed sm:text-base" style={{ color: 'var(--muted)' }}>
+              Real reviews from real customers on Facebook.
             </p>
           </div>
 
-          {/* Service detail cards */}
-          <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
 
-            {/* Automobile Tint */}
-            <div className="panel-gold flex flex-col gap-4 p-7">
-              <div className="flex items-center gap-3">
-                <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-xs font-bold tracking-widest"
-                  style={{ background: 'rgba(200,168,75,0.12)', border: '1px solid rgba(200,168,75,0.35)', color: 'var(--gold)' }}>01</span>
-                <h3 className="text-base font-semibold text-[var(--text)]">Automobile Window Tint</h3>
+            {/* Review 1 — Ethan Scott */}
+            <div className="panel-gold flex flex-col gap-4 p-6">
+              <div className="flex gap-0.5">
+                {[...Array(5)].map((_, i) => (
+                  <svg key={i} className="h-4 w-4" viewBox="0 0 20 20" fill="var(--gold)"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                ))}
               </div>
-              <div className="h-px w-full" style={{ background: 'var(--line)' }} />
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
-                We use professional-grade film cut precisely to each vehicle — sedans, trucks, SUVs, and everything in between. Tint keeps your interior cooler, protects against UV fading, and reduces glare without sacrificing visibility. Every install is done bubble-free and clean.
+              <p className="flex-1 text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
+                &ldquo;Zach got me with 25% on the windshield and 5% all the way around. Looks great on my truck and gives me the privacy I&apos;ve been looking for! I would definitely recommend Zach to others looking for a tint.&rdquo;
               </p>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-[var(--text)]">Ethan Scott</span>
+                <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'rgba(200,168,75,0.6)' }}>Facebook</span>
+              </div>
             </div>
 
-            {/* Residential & Commercial */}
-            <div className="panel-gold flex flex-col gap-4 p-7">
-              <div className="flex items-center gap-3">
-                <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-xs font-bold tracking-widest"
-                  style={{ background: 'rgba(200,168,75,0.12)', border: '1px solid rgba(200,168,75,0.35)', color: 'var(--gold)' }}>02</span>
-                <h3 className="text-base font-semibold text-[var(--text)]">Residential & Commercial Film</h3>
+            {/* Review 2 — John Matthews */}
+            <div className="panel-gold flex flex-col gap-4 p-6">
+              <div className="flex gap-0.5">
+                {[...Array(5)].map((_, i) => (
+                  <svg key={i} className="h-4 w-4" viewBox="0 0 20 20" fill="var(--gold)"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                ))}
               </div>
-              <div className="h-px w-full" style={{ background: 'var(--line)' }} />
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
-                Window film for homes, offices, and storefronts that cuts energy costs, adds privacy, and blocks harmful UV rays — without making rooms feel dark. We work with windows of any size and can match the right film to your specific goals, whether that is heat rejection, privacy, or both.
+              <p className="flex-1 text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
+                &ldquo;Zach recommended to me by multiple friends, and he did not disappoint. Uses high quality tint, can get ceramic or dyed, and he&apos;s fairly priced.&rdquo;
               </p>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-[var(--text)]">John Matthews</span>
+                <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'rgba(200,168,75,0.6)' }}>Facebook</span>
+              </div>
             </div>
 
-            {/* Vinyl Wrap */}
-            <div className="panel-gold flex flex-col gap-4 p-7">
-              <div className="flex items-center gap-3">
-                <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-xs font-bold tracking-widest"
-                  style={{ background: 'rgba(200,168,75,0.12)', border: '1px solid rgba(200,168,75,0.35)', color: 'var(--gold)' }}>03</span>
-                <h3 className="text-base font-semibold text-[var(--text)]">Vinyl Wrap</h3>
+            {/* Review 3 — Michael Vanfarowe */}
+            <div className="panel-gold flex flex-col gap-4 p-6">
+              <div className="flex gap-0.5">
+                {[...Array(5)].map((_, i) => (
+                  <svg key={i} className="h-4 w-4" viewBox="0 0 20 20" fill="var(--gold)"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                ))}
               </div>
-              <div className="h-px w-full" style={{ background: 'var(--line)' }} />
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
-                Full vehicle wraps, partial color changes, and accent panels — all cut and applied by hand for a seamless, factory-quality finish. Vinyl wrap is one of the best ways to protect your factory paint while completely changing the look of your vehicle. Removable, durable, and done right.
+              <p className="flex-1 text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
+                &ldquo;He did a great job on my Model S!&rdquo;
               </p>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-[var(--text)]">Michael Vanfarowe</span>
+                <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'rgba(200,168,75,0.6)' }}>Facebook</span>
+              </div>
             </div>
 
-            {/* Ambient Lighting */}
-            <div className="panel-gold flex flex-col gap-4 p-7">
-              <div className="flex items-center gap-3">
-                <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-xs font-bold tracking-widest"
-                  style={{ background: 'rgba(200,168,75,0.12)', border: '1px solid rgba(200,168,75,0.35)', color: 'var(--gold)' }}>04</span>
-                <h3 className="text-base font-semibold text-[var(--text)]">Ambient Lighting</h3>
+            {/* Review 4 — Michael Nagelkirk */}
+            <div className="panel-gold flex flex-col gap-4 p-6">
+              <div className="flex gap-0.5">
+                {[...Array(5)].map((_, i) => (
+                  <svg key={i} className="h-4 w-4" viewBox="0 0 20 20" fill="var(--gold)"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                ))}
               </div>
-              <div className="h-px w-full" style={{ background: 'var(--line)' }} />
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
-                Custom LED accent lighting installed cleanly inside your vehicle. We design the layout to suit your interior, run the wiring out of sight, and mount the lights exactly where they should be. No exposed wires, no dangling strips — just a clean, professional finish that transforms your cabin at night.
+              <p className="flex-1 text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
+                &ldquo;Zach took great care of my car throughout the whole process, keeping me in the loop with everything. My BMW e39 looks great, and I will be giving him more business.&rdquo;
               </p>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-[var(--text)]">Michael Nagelkirk</span>
+                <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'rgba(200,168,75,0.6)' }}>Facebook</span>
+              </div>
+            </div>
+
+            {/* Review 5 — Alex Martinez */}
+            <div className="panel-gold flex flex-col gap-4 p-6">
+              <div className="flex gap-0.5">
+                {[...Array(5)].map((_, i) => (
+                  <svg key={i} className="h-4 w-4" viewBox="0 0 20 20" fill="var(--gold)"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                ))}
+              </div>
+              <p className="flex-1 text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
+                &ldquo;Worked great with my budget, and was plenty flexible with my schedule. Amazing work! My tint is great! 11/10!&rdquo;
+              </p>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-[var(--text)]">Alex Martinez</span>
+                <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'rgba(200,168,75,0.6)' }}>Facebook</span>
+              </div>
             </div>
 
           </div>
@@ -344,12 +370,12 @@ export default async function HomePage() {
             data-ngf-label="Description"
             data-ngf-type="textarea"
             data-ngf-section="Call to Action"
-            className="mx-auto mt-4 max-w-md text-base"
+            className="mt-4 text-sm leading-relaxed sm:text-base"
             style={{ color: 'var(--muted)' }}
           >
             {ctaDescription}
           </p>
-          <Link href="/quote" className="btn-gold mt-8 inline-flex">
+          <Link href="/quote" className="btn-gold mt-8 inline-block">
             <span
               data-ngf-field="cta.button"
               data-ngf-label="Button Text"
@@ -363,35 +389,39 @@ export default async function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="px-4 pb-10 pt-8 text-center sm:px-6" style={{ borderTop: '1px solid var(--line)' }}>
-        <p
-          data-ngf-field="brand.businessName"
-          data-ngf-label="Business Name"
-          data-ngf-type="text"
-          data-ngf-section="Brand"
-          className="text-sm font-bold uppercase tracking-[0.12em] text-[var(--text)]"
-        >
-          {businessName}
-        </p>
-        <div className="mt-3 flex flex-wrap items-center justify-center gap-4 text-xs" style={{ color: 'var(--muted)' }}>
-          <a href={`tel:${phone.replace(/\D/g, '')}`} className="hover:text-[var(--gold)] transition-colors">
-            <span data-ngf-field="brand.phone" data-ngf-label="Phone" data-ngf-type="text" data-ngf-section="Brand">{phone}</span>
-          </a>
-          <span aria-hidden="true">·</span>
-          <a href={`https://instagram.com/${instagram}`} target="_blank" rel="noopener noreferrer" className="hover:text-[var(--gold)] transition-colors">
-            @<span data-ngf-field="brand.instagram" data-ngf-label="Instagram Handle" data-ngf-type="text" data-ngf-section="Brand">{instagram}</span>
-          </a>
+      <footer className="px-4 py-8 sm:px-6" style={{ borderTop: '1px solid var(--line)' }}>
+        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 sm:flex-row">
+          <p
+            data-ngf-field="footer.copyright"
+            data-ngf-label="Copyright"
+            data-ngf-type="text"
+            data-ngf-section="Footer"
+            className="text-xs"
+            style={{ color: 'var(--muted)' }}
+          >
+            {copyright}
+          </p>
+          <div className="flex items-center gap-4">
+            <a
+              href={`https://www.instagram.com/${instagram}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-semibold uppercase tracking-[0.1em] transition-colors hover:text-[var(--text)]"
+              style={{ color: 'var(--muted)' }}
+            >
+              Instagram
+            </a>
+            <a
+              href="https://www.facebook.com/profile.php?id=61586828482179"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-semibold uppercase tracking-[0.1em] transition-colors hover:text-[var(--text)]"
+              style={{ color: 'var(--muted)' }}
+            >
+              Facebook
+            </a>
+          </div>
         </div>
-        <p
-          data-ngf-field="footer.copyright"
-          data-ngf-label="Copyright"
-          data-ngf-type="text"
-          data-ngf-section="Footer"
-          className="mt-4 text-xs"
-          style={{ color: 'var(--muted)' }}
-        >
-          {copyright}
-        </p>
       </footer>
 
     </div>
