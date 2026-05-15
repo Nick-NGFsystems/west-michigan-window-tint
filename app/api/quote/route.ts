@@ -46,6 +46,22 @@ function section(title: string, rows: string) {
 }
 
 export async function POST(req: NextRequest) {
+  const apiKey = process.env.RESEND_API_KEY
+  const emailTo = process.env.EMAIL_TO
+  const emailFrom = process.env.EMAIL_FROM ?? 'noreply@westmiwindowtint.com'
+  const businessName = process.env.BUSINESS_NAME ?? 'West Michigan Window Tint'
+  const siteUrl = process.env.SITE_URL ?? 'westmiwindowtint.com'
+
+  if (!apiKey) {
+    console.error('RESEND_API_KEY is not set')
+    return NextResponse.json({ success: false, error: 'Email service not configured' }, { status: 500 })
+  }
+
+  if (!emailTo) {
+    console.error('EMAIL_TO is not set')
+    return NextResponse.json({ success: false, error: 'Recipient not configured' }, { status: 500 })
+  }
+
   try {
     const body = await req.json() as {
       name: string
@@ -62,7 +78,7 @@ export async function POST(req: NextRequest) {
       notes: string
     }
 
-    const resend = new Resend(process.env.RESEND_API_KEY)
+    const resend = new Resend(apiKey)
 
     const vehicleInfo = [body.vehicleYear, body.vehicleMake, body.vehicleModel]
       .filter(Boolean).join(' ') || 'Not provided'
@@ -87,7 +103,7 @@ export async function POST(req: NextRequest) {
         New Quote Request
       </div>
       <div style="font-size:22px;font-weight:700;color:#F2EDE4;">
-        West Michigan Window Tint
+        ${businessName}
       </div>
     </div>
 
@@ -128,7 +144,7 @@ export async function POST(req: NextRequest) {
     </div>
 
     <div style="text-align:center;margin-top:16px;font-size:11px;color:#4A4440;">
-      Sent via westmiwindowtint.com
+      Sent via ${siteUrl}
     </div>
 
   </div>
@@ -136,9 +152,11 @@ export async function POST(req: NextRequest) {
 </html>
     `
 
+    const recipients = emailTo.split(',').map(e => e.trim()).filter(Boolean)
+
     await resend.emails.send({
-      from: 'West Michigan Window Tint <noreply@ngfsystems.com>',
-      to: ['nick@ngfsystems.com'],
+      from: `${businessName} <${emailFrom}>`,
+      to: recipients,
       replyTo: body.email,
       subject: 'New Quote -- ' + body.name + ' - ' + body.service,
       html,
