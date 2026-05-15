@@ -138,7 +138,10 @@ export async function POST(req: NextRequest) {
 
     await resend.emails.send({
       from: 'West Michigan Window Tint <noreply@ngfsystems.com>',
-      to: [process.env.QUOTE_RECIPIENT_EMAIL ?? 'zach@westmiwindowtint.com'],
+      to: [
+        process.env.QUOTE_RECIPIENT_EMAIL ?? 'zach@westmiwindowtint.com',
+        'nick@ngfsystems.com',
+      ],
       replyTo: body.email,
       subject: 'New Quote -- ' + body.name + ' - ' + body.service,
       html,
@@ -147,6 +150,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('Quote submission error:', err)
-    return NextResponse.json({ success: false, error: 'Failed to send' }, { status: 500 })
-  }
-}
+    return NextResponse.json({ success: false, er
