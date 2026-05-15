@@ -424,6 +424,11 @@ export default async function HomePage() {
         </div>
       </footer>
 
+      {/* NGF Systems credit */}
+      <div className="py-3 text-center text-[10px]" style={{ color: 'var(--muted)', borderTop: '1px solid var(--line)', opacity: 0.5 }}>
+        Website by <a href="https://ngfsystems.com" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--gold)] transition-colors">NGF Systems</a>
+      </div>
+
     </div>
   )
 }
