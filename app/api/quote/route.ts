@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
-import { Resvg } from '@resvg/resvg-js'
+import sharp from 'sharp'
 
 const WINDOW_LABELS: Record<string, string> = {
   'windshield':        'Windshield',
@@ -23,53 +23,37 @@ function buildCarSvg(selected: string[]): string {
 
   function wp(id: string) {
     const active = sel.has(id)
-    const fill   = active ? 'rgba(200,168,75,0.7)' : 'rgba(255,255,255,0.07)'
-    const stroke = active ? '#E8C060'              : 'rgba(255,255,255,0.18)'
+    const fill   = active ? '#C8A84B'              : '#1A1A1A'
+    const stroke = active ? '#E8C060'              : '#333333'
     const sw     = active ? '2'                    : '1'
     return `fill="${fill}" stroke="${stroke}" stroke-width="${sw}"`
   }
 
   return `<svg viewBox="0 0 220 380" xmlns="http://www.w3.org/2000/svg" width="220" height="380">
-  <!-- Dark background so the PNG looks correct on white email backgrounds -->
   <rect width="220" height="380" fill="#141414"/>
-  <!-- Body -->
-  <rect x="30" y="45" width="160" height="280" rx="22"
-    fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
-  <!-- Door divider -->
-  <line x1="34" y1="178" x2="186" y2="178" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
-  <!-- Center roof -->
-  <rect x="75" y="120" width="70" height="138" rx="2"
-    fill="rgba(0,0,0,0.25)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
-  <!-- Wheel arches -->
-  <ellipse cx="44" cy="132" rx="14" ry="16" fill="rgba(0,0,0,0.35)"/>
-  <ellipse cx="176" cy="132" rx="14" ry="16" fill="rgba(0,0,0,0.35)"/>
-  <ellipse cx="44" cy="248" rx="14" ry="16" fill="rgba(0,0,0,0.35)"/>
-  <ellipse cx="176" cy="248" rx="14" ry="16" fill="rgba(0,0,0,0.35)"/>
-  <!-- Windshield -->
+  <rect x="30" y="45" width="160" height="280" rx="22" fill="#1E1E1E" stroke="#333333" stroke-width="1.5"/>
+  <line x1="34" y1="178" x2="186" y2="178" stroke="#2A2A2A" stroke-width="1"/>
+  <rect x="75" y="120" width="70" height="138" rx="2" fill="#111111" stroke="#222222" stroke-width="1"/>
+  <ellipse cx="44" cy="132" rx="14" ry="16" fill="#0D0D0D"/>
+  <ellipse cx="176" cy="132" rx="14" ry="16" fill="#0D0D0D"/>
+  <ellipse cx="44" cy="248" rx="14" ry="16" fill="#0D0D0D"/>
+  <ellipse cx="176" cy="248" rx="14" ry="16" fill="#0D0D0D"/>
   <polygon points="68,62 152,62 162,108 58,108" ${wp('windshield')}/>
-  <!-- Driver front -->
   <rect x="34" y="118" width="36" height="52" rx="4" ${wp('driver-front')}/>
-  <!-- Passenger front -->
   <rect x="150" y="118" width="36" height="52" rx="4" ${wp('passenger-front')}/>
-  <!-- Driver rear -->
   <rect x="34" y="182" width="36" height="50" rx="4" ${wp('driver-rear')}/>
-  <!-- Passenger rear -->
   <rect x="150" y="182" width="36" height="50" rx="4" ${wp('passenger-rear')}/>
-  <!-- Driver quarter -->
   <rect x="34" y="240" width="36" height="20" rx="4" ${wp('driver-quarter')}/>
-  <!-- Passenger quarter -->
   <rect x="150" y="240" width="36" height="20" rx="4" ${wp('passenger-quarter')}/>
-  <!-- Rear window -->
   <polygon points="58,268 162,268 152,314 68,314" ${wp('rear-window')}/>
-  <!-- Labels -->
-  <text x="110" y="90" text-anchor="middle" font-size="7.5" fill="rgba(255,255,255,0.5)" font-family="sans-serif">Windshield</text>
-  <text x="52"  y="148" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,0.45)" font-family="sans-serif">DR</text>
-  <text x="168" y="148" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,0.45)" font-family="sans-serif">PS</text>
-  <text x="52"  y="212" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,0.45)" font-family="sans-serif">DR</text>
-  <text x="168" y="212" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,0.45)" font-family="sans-serif">PS</text>
-  <text x="110" y="295" text-anchor="middle" font-size="7.5" fill="rgba(255,255,255,0.5)" font-family="sans-serif">Rear</text>
-  <text x="110" y="22"  text-anchor="middle" font-size="8" fill="rgba(200,168,75,0.6)" font-family="sans-serif" font-weight="600" letter-spacing="2">FRONT</text>
-  <text x="110" y="372" text-anchor="middle" font-size="8" fill="rgba(200,168,75,0.6)" font-family="sans-serif" font-weight="600" letter-spacing="2">REAR</text>
+  <text x="110" y="90" text-anchor="middle" font-size="7.5" fill="#888888" font-family="Arial,sans-serif">Windshield</text>
+  <text x="52"  y="148" text-anchor="middle" font-size="6.5" fill="#777777" font-family="Arial,sans-serif">DR</text>
+  <text x="168" y="148" text-anchor="middle" font-size="6.5" fill="#777777" font-family="Arial,sans-serif">PS</text>
+  <text x="52"  y="212" text-anchor="middle" font-size="6.5" fill="#777777" font-family="Arial,sans-serif">DR</text>
+  <text x="168" y="212" text-anchor="middle" font-size="6.5" fill="#777777" font-family="Arial,sans-serif">PS</text>
+  <text x="110" y="295" text-anchor="middle" font-size="7.5" fill="#888888" font-family="Arial,sans-serif">Rear</text>
+  <text x="110" y="22"  text-anchor="middle" font-size="8" fill="#C8A84B" font-family="Arial,sans-serif" font-weight="bold" letter-spacing="2">FRONT</text>
+  <text x="110" y="372" text-anchor="middle" font-size="8" fill="#C8A84B" font-family="Arial,sans-serif" font-weight="bold" letter-spacing="2">REAR</text>
 </svg>`
 }
 
@@ -78,12 +62,11 @@ async function generateCarImageHtml(selected: string[]): Promise<string> {
 
   try {
     const svgString = buildCarSvg(selected)
-    const resvg = new Resvg(svgString, {
-      fitTo: { mode: 'width', value: 320 },
-    })
-    const rendered = resvg.render()
-    const pngBuffer = rendered.asPng()
-    const base64    = pngBuffer.toString('base64')
+    const pngBuffer = await sharp(Buffer.from(svgString))
+      .resize(320)
+      .png()
+      .toBuffer()
+    const base64 = pngBuffer.toString('base64')
 
     return `
 <div style="text-align:center;margin:16px 0;">

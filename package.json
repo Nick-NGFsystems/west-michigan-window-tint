@@ -14,7 +14,7 @@
     "react-dom": "^18.3.1",
     "resend": "latest",
     "yet-another-react-lightbox": "^3.32.0",
-    "@resvg/resvg-js": "^2.6.2"
+    "sharp": "^0.33.5"
   },
   "devDependencies": {
     "@types/node": "^20",
