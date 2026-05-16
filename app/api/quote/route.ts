@@ -63,7 +63,9 @@ async function generateCarImageHtml(selected: string[]): Promise<string> {
     return `
 <div style="text-align:center;margin:16px 0;">
   <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#8A8070;margin:0 0 10px 0;">Windows Selected</p>
+  <p style="font-size:10px;font-weight:700;letter-spacing:0.15em;color:#C8A84B;margin:0 0 6px 0;">&#9650; FRONT</p>
   <img src="data:image/png;base64,${base64}" width="160" alt="Windows selected diagram" style="display:inline-block;border-radius:8px;" />
+  <p style="font-size:10px;font-weight:700;letter-spacing:0.15em;color:#C8A84B;margin:6px 0 0 0;">&#9660; REAR</p>
 </div>`
   } catch (err) {
     console.error('Failed to render car SVG to PNG:', err)
