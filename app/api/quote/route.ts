@@ -23,9 +23,9 @@ function buildCarSvg(selected: string[]): string {
 
   function wp(id: string) {
     const active = sel.has(id)
-    const fill   = active ? '#C8A84B'              : '#1A1A1A'
-    const stroke = active ? '#E8C060'              : '#333333'
-    const sw     = active ? '2'                    : '1'
+    const fill   = active ? '#C8A84B' : '#1A1A1A'
+    const stroke = active ? '#E8C060' : '#333333'
+    const sw     = active ? '2'       : '1'
     return `fill="${fill}" stroke="${stroke}" stroke-width="${sw}"`
   }
 
@@ -46,14 +46,6 @@ function buildCarSvg(selected: string[]): string {
   <rect x="34" y="240" width="36" height="20" rx="4" ${wp('driver-quarter')}/>
   <rect x="150" y="240" width="36" height="20" rx="4" ${wp('passenger-quarter')}/>
   <polygon points="58,268 162,268 152,314 68,314" ${wp('rear-window')}/>
-  <text x="110" y="90" text-anchor="middle" font-size="7.5" fill="#888888" font-family="Arial,sans-serif">Windshield</text>
-  <text x="52"  y="148" text-anchor="middle" font-size="6.5" fill="#777777" font-family="Arial,sans-serif">DR</text>
-  <text x="168" y="148" text-anchor="middle" font-size="6.5" fill="#777777" font-family="Arial,sans-serif">PS</text>
-  <text x="52"  y="212" text-anchor="middle" font-size="6.5" fill="#777777" font-family="Arial,sans-serif">DR</text>
-  <text x="168" y="212" text-anchor="middle" font-size="6.5" fill="#777777" font-family="Arial,sans-serif">PS</text>
-  <text x="110" y="295" text-anchor="middle" font-size="7.5" fill="#888888" font-family="Arial,sans-serif">Rear</text>
-  <text x="110" y="22"  text-anchor="middle" font-size="8" fill="#C8A84B" font-family="Arial,sans-serif" font-weight="bold" letter-spacing="2">FRONT</text>
-  <text x="110" y="372" text-anchor="middle" font-size="8" fill="#C8A84B" font-family="Arial,sans-serif" font-weight="bold" letter-spacing="2">REAR</text>
 </svg>`
 }
 
@@ -111,7 +103,7 @@ function section(title: string, rows: string, extra = '') {
 export async function POST(req: NextRequest) {
   const apiKey       = process.env.RESEND_API_KEY
   const emailTo      = process.env.EMAIL_TO
-  const emailFrom    = process.env.EMAIL_FROM   ?? 'noreply@westmiwindowtint.com'
+  const emailFrom    = process.env.EMAIL_FROM    ?? 'noreply@westmiwindowtint.com'
   const businessName = process.env.BUSINESS_NAME ?? 'West Michigan Window Tint'
   const siteUrl      = process.env.SITE_URL      ?? 'westmiwindowtint.com'
 
