@@ -49,27 +49,14 @@ function buildCarSvg(selected: string[]): string {
 </svg>`
 }
 
-async function generateCarImageHtml(selected: string[]): Promise<string> {
-  if (!selected || selected.length === 0) return ''
-
+async function generateCarPng(selected: string[]): Promise<Buffer | null> {
+  if (!selected || selected.length === 0) return null
   try {
     const svgString = buildCarSvg(selected)
-    const pngBuffer = await sharp(Buffer.from(svgString))
-      .resize(320)
-      .png()
-      .toBuffer()
-    const base64 = pngBuffer.toString('base64')
-
-    return `
-<div style="text-align:center;margin:16px 0;">
-  <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#8A8070;margin:0 0 10px 0;">Windows Selected</p>
-  <p style="font-size:10px;font-weight:700;letter-spacing:0.15em;color:#C8A84B;margin:0 0 6px 0;">&#9650; FRONT</p>
-  <img src="data:image/png;base64,${base64}" width="160" alt="Windows selected diagram" style="display:inline-block;border-radius:8px;" />
-  <p style="font-size:10px;font-weight:700;letter-spacing:0.15em;color:#C8A84B;margin:6px 0 0 0;">&#9660; REAR</p>
-</div>`
+    return await sharp(Buffer.from(svgString)).resize(320).png().toBuffer()
   } catch (err) {
     console.error('Failed to render car SVG to PNG:', err)
-    return ''
+    return null
   }
 }
 
@@ -100,6 +87,17 @@ function section(title: string, rows: string, extra = '') {
       ${extra}
     </div>
   `
+}
+
+function carImageHtml(hasPng: boolean): string {
+  if (!hasPng) return ''
+  return `
+<div style="text-align:center;margin:16px 0;">
+  <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#8A8070;margin:0 0 6px 0;">Windows Selected</p>
+  <p style="font-size:10px;font-weight:700;letter-spacing:0.12em;color:#C8A84B;margin:0 0 4px 0;">&#9650; FRONT</p>
+  <img src="cid:car-diagram" width="160" alt="Windows selected diagram" style="display:inline-block;border-radius:8px;" />
+  <p style="font-size:10px;font-weight:700;letter-spacing:0.12em;color:#C8A84B;margin:4px 0 0 0;">&#9660; REAR</p>
+</div>`
 }
 
 export async function POST(req: NextRequest) {
@@ -149,9 +147,9 @@ export async function POST(req: NextRequest) {
     const isAutoTint = !!body.vehicleYear || !!body.vehicleMake || !!body.vehicleModel || !!body.hasTint
     const windows    = body.windowsGettingTint ?? []
 
-    const carImageHtml = isAutoTint && windows.length > 0
-      ? await generateCarImageHtml(windows)
-      : ''
+    const carPng = isAutoTint && windows.length > 0
+      ? await generateCarPng(windows)
+      : null
 
     const html = `
 <!DOCTYPE html>
@@ -190,7 +188,7 @@ export async function POST(req: NextRequest) {
         row('Vehicle',        vehicleInfo),
         row('Has Tint',       body.hasTint === 'yes' ? 'Yes' : body.hasTint === 'no' ? 'No' : 'Not answered'),
         row('Getting Tinted', labelWindows(windows)),
-      ].join(''), carImageHtml) : ''}
+      ].join(''), carImageHtml(carPng !== null)) : ''}
 
       ${body.notes ? section('Notes', [
         row('', body.notes),
@@ -222,6 +220,13 @@ export async function POST(req: NextRequest) {
       replyTo: body.email,
       subject: 'New Quote -- ' + body.name + ' - ' + body.service,
       html,
+      attachments: carPng ? [
+        {
+          filename:   'car-diagram.png',
+          content:    carPng.toString('base64'),
+          content_id: 'car-diagram',
+        }
+      ] : [],
     })
 
     return NextResponse.json({ success: true })
