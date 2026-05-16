@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
-import sharp from 'sharp'
 
 const WINDOW_LABELS: Record<string, string> = {
   'windshield':        'Windshield',
@@ -18,46 +17,40 @@ function labelWindows(ids: string[]): string {
   return ids.map(id => WINDOW_LABELS[id] ?? id).join(', ')
 }
 
-function buildCarSvg(selected: string[]): string {
+function buildCarDiagramHtml(selected: string[]): string {
   const sel = new Set(selected)
 
-  function wp(id: string) {
-    const active = sel.has(id)
-    const fill   = active ? '#C8A84B' : '#1A1A1A'
-    const stroke = active ? '#E8C060' : '#333333'
-    const sw     = active ? '2'       : '1'
-    return `fill="${fill}" stroke="${stroke}" stroke-width="${sw}"`
+  function cell(id: string, label: string, span = 1): string {
+    const active  = sel.has(id)
+    const bg      = active ? '#C8A84B' : '#1E1E1E'
+    const color   = active ? '#000000' : '#555555'
+    const border  = active ? '1px solid #E8C060' : '1px solid #2A2A2A'
+    const weight  = active ? '700' : '400'
+    const colspan = span > 1 ? ` colspan="${span}"` : ''
+    return `<td${colspan} style="background:${bg};color:${color};border:${border};border-radius:4px;padding:10px 8px;text-align:center;font-size:10px;font-weight:${weight};letter-spacing:0.04em;font-family:Arial,sans-serif;">${label}</td>`
   }
 
-  return `<svg viewBox="0 0 220 380" xmlns="http://www.w3.org/2000/svg" width="220" height="380">
-  <rect width="220" height="380" fill="#141414"/>
-  <rect x="30" y="45" width="160" height="280" rx="22" fill="#1E1E1E" stroke="#333333" stroke-width="1.5"/>
-  <line x1="34" y1="178" x2="186" y2="178" stroke="#2A2A2A" stroke-width="1"/>
-  <rect x="75" y="120" width="70" height="138" rx="2" fill="#111111" stroke="#222222" stroke-width="1"/>
-  <ellipse cx="44" cy="132" rx="14" ry="16" fill="#0D0D0D"/>
-  <ellipse cx="176" cy="132" rx="14" ry="16" fill="#0D0D0D"/>
-  <ellipse cx="44" cy="248" rx="14" ry="16" fill="#0D0D0D"/>
-  <ellipse cx="176" cy="248" rx="14" ry="16" fill="#0D0D0D"/>
-  <polygon points="68,62 152,62 162,108 58,108" ${wp('windshield')}/>
-  <rect x="34" y="118" width="36" height="52" rx="4" ${wp('driver-front')}/>
-  <rect x="150" y="118" width="36" height="52" rx="4" ${wp('passenger-front')}/>
-  <rect x="34" y="182" width="36" height="50" rx="4" ${wp('driver-rear')}/>
-  <rect x="150" y="182" width="36" height="50" rx="4" ${wp('passenger-rear')}/>
-  <rect x="34" y="240" width="36" height="20" rx="4" ${wp('driver-quarter')}/>
-  <rect x="150" y="240" width="36" height="20" rx="4" ${wp('passenger-quarter')}/>
-  <polygon points="58,268 162,268 152,314 68,314" ${wp('rear-window')}/>
-</svg>`
-}
-
-async function generateCarPng(selected: string[]): Promise<Buffer | null> {
-  if (!selected || selected.length === 0) return null
-  try {
-    const svgString = buildCarSvg(selected)
-    return await sharp(Buffer.from(svgString)).resize(320).png().toBuffer()
-  } catch (err) {
-    console.error('Failed to render car SVG to PNG:', err)
-    return null
+  function gap(): string {
+    return `<td style="width:10px;background:#141414;"></td>`
   }
+
+  return `
+<div style="text-align:center;margin:16px 0;">
+  <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#8A8070;margin:0 0 8px 0;font-family:Arial,sans-serif;">Windows Selected</p>
+  <table style="margin:0 auto;border-collapse:separate;border-spacing:3px;background:#141414;padding:10px 14px 14px;border-radius:8px;">
+    <tr>
+      <td colspan="3" style="text-align:center;font-size:9px;font-weight:700;letter-spacing:0.12em;color:#C8A84B;padding:0 0 5px 0;font-family:Arial,sans-serif;">&#9650; FRONT</td>
+    </tr>
+    <tr>${cell('windshield', 'Windshield', 3)}</tr>
+    <tr>${cell('driver-front', 'DR Front')}${gap()}${cell('passenger-front', 'PS Front')}</tr>
+    <tr>${cell('driver-rear', 'DR Rear')}${gap()}${cell('passenger-rear', 'PS Rear')}</tr>
+    <tr>${cell('driver-quarter', 'DR Quarter')}${gap()}${cell('passenger-quarter', 'PS Quarter')}</tr>
+    <tr>${cell('rear-window', 'Rear Window', 3)}</tr>
+    <tr>
+      <td colspan="3" style="text-align:center;font-size:9px;font-weight:700;letter-spacing:0.12em;color:#C8A84B;padding:5px 0 0 0;font-family:Arial,sans-serif;">&#9660; REAR</td>
+    </tr>
+  </table>
+</div>`
 }
 
 function row(label: string, value: string) {
@@ -87,17 +80,6 @@ function section(title: string, rows: string, extra = '') {
       ${extra}
     </div>
   `
-}
-
-function carImageHtml(hasPng: boolean): string {
-  if (!hasPng) return ''
-  return `
-<div style="text-align:center;margin:16px 0;">
-  <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#8A8070;margin:0 0 6px 0;">Windows Selected</p>
-  <p style="font-size:10px;font-weight:700;letter-spacing:0.12em;color:#C8A84B;margin:0 0 4px 0;">&#9650; FRONT</p>
-  <img src="cid:car-diagram" width="160" alt="Windows selected diagram" style="display:inline-block;border-radius:8px;" />
-  <p style="font-size:10px;font-weight:700;letter-spacing:0.12em;color:#C8A84B;margin:4px 0 0 0;">&#9660; REAR</p>
-</div>`
 }
 
 export async function POST(req: NextRequest) {
@@ -147,10 +129,6 @@ export async function POST(req: NextRequest) {
     const isAutoTint = !!body.vehicleYear || !!body.vehicleMake || !!body.vehicleModel || !!body.hasTint
     const windows    = body.windowsGettingTint ?? []
 
-    const carPng = isAutoTint && windows.length > 0
-      ? await generateCarPng(windows)
-      : null
-
     const html = `
 <!DOCTYPE html>
 <html>
@@ -188,7 +166,7 @@ export async function POST(req: NextRequest) {
         row('Vehicle',        vehicleInfo),
         row('Has Tint',       body.hasTint === 'yes' ? 'Yes' : body.hasTint === 'no' ? 'No' : 'Not answered'),
         row('Getting Tinted', labelWindows(windows)),
-      ].join(''), carImageHtml(carPng !== null)) : ''}
+      ].join(''), windows.length > 0 ? buildCarDiagramHtml(windows) : '') : ''}
 
       ${body.notes ? section('Notes', [
         row('', body.notes),
@@ -220,13 +198,6 @@ export async function POST(req: NextRequest) {
       replyTo: body.email,
       subject: 'New Quote -- ' + body.name + ' - ' + body.service,
       html,
-      attachments: carPng ? [
-        {
-          filename:   'car-diagram.png',
-          content:    carPng.toString('base64'),
-          content_id: 'car-diagram',
-        }
-      ] : [],
     })
 
     return NextResponse.json({ success: true })

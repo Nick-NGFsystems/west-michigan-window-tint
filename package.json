@@ -13,8 +13,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "resend": "latest",
-    "yet-another-react-lightbox": "^3.32.0",
-    "sharp": "^0.33.5"
+    "yet-another-react-lightbox": "^3.32.0"
   },
   "devDependencies": {
     "@types/node": "^20",
