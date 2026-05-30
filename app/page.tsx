@@ -221,7 +221,7 @@ export default async function HomePage() {
 
           <div className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
 
-            {/* Review 1 — Ethan Scott */}
+            {/* Review 1 — Ethan S. */}
             <div className="panel-gold flex flex-col gap-4 p-6">
               <div className="flex gap-0.5">
                 {[...Array(5)].map((_, i) => (
@@ -232,12 +232,12 @@ export default async function HomePage() {
                 &ldquo;Zach got me with 25% on the windshield and 5% all the way around. Looks great on my truck and gives me the privacy I&apos;ve been looking for! I would definitely recommend Zach to others looking for a tint.&rdquo;
               </p>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-[var(--text)]">Ethan Scott</span>
+                <span className="text-sm font-semibold text-[var(--text)]">Ethan S.</span>
                 <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'rgba(200,168,75,0.6)' }}>Facebook</span>
               </div>
             </div>
 
-            {/* Review 2 — John Matthews */}
+            {/* Review 2 — John M. */}
             <div className="panel-gold flex flex-col gap-4 p-6">
               <div className="flex gap-0.5">
                 {[...Array(5)].map((_, i) => (
@@ -248,12 +248,12 @@ export default async function HomePage() {
                 &ldquo;Zach recommended to me by multiple friends, and he did not disappoint. Uses high quality tint, can get ceramic or dyed, and he&apos;s fairly priced.&rdquo;
               </p>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-[var(--text)]">John Matthews</span>
+                <span className="text-sm font-semibold text-[var(--text)]">John M.</span>
                 <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'rgba(200,168,75,0.6)' }}>Facebook</span>
               </div>
             </div>
 
-            {/* Review 3 — Michael Vanfarowe */}
+            {/* Review 3 — Michael V. */}
             <div className="panel-gold flex flex-col gap-4 p-6">
               <div className="flex gap-0.5">
                 {[...Array(5)].map((_, i) => (
@@ -264,12 +264,12 @@ export default async function HomePage() {
                 &ldquo;He did a great job on my Model S!&rdquo;
               </p>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-[var(--text)]">Michael Vanfarowe</span>
+                <span className="text-sm font-semibold text-[var(--text)]">Michael V.</span>
                 <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'rgba(200,168,75,0.6)' }}>Facebook</span>
               </div>
             </div>
 
-            {/* Review 4 — Michael Nagelkirk */}
+            {/* Review 4 — Michael N. */}
             <div className="panel-gold flex flex-col gap-4 p-6">
               <div className="flex gap-0.5">
                 {[...Array(5)].map((_, i) => (
@@ -280,12 +280,12 @@ export default async function HomePage() {
                 &ldquo;Zach took great care of my car throughout the whole process, keeping me in the loop with everything. My BMW e39 looks great, and I will be giving him more business.&rdquo;
               </p>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-[var(--text)]">Michael Nagelkirk</span>
+                <span className="text-sm font-semibold text-[var(--text)]">Michael N.</span>
                 <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'rgba(200,168,75,0.6)' }}>Facebook</span>
               </div>
             </div>
 
-            {/* Review 5 — Alex Martinez */}
+            {/* Review 5 — Alex M. */}
             <div className="panel-gold flex flex-col gap-4 p-6">
               <div className="flex gap-0.5">
                 {[...Array(5)].map((_, i) => (
@@ -296,7 +296,7 @@ export default async function HomePage() {
                 &ldquo;Worked great with my budget, and was plenty flexible with my schedule. Amazing work! My tint is great! 11/10!&rdquo;
               </p>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-[var(--text)]">Alex Martinez</span>
+                <span className="text-sm font-semibold text-[var(--text)]">Alex M.</span>
                 <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'rgba(200,168,75,0.6)' }}>Facebook</span>
               </div>
             </div>
