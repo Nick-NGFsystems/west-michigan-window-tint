@@ -22,6 +22,7 @@ const CONTACT_METHODS = [
 export default function QuotePage() {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [renderedAt] = useState(() => Date.now())
   const [service, setService] = useState('')
   const [hasTint, setHasTint] = useState<'yes' | 'no' | ''>('')
   const [contactMethod, setContactMethod] = useState('')
@@ -48,6 +49,9 @@ export default function QuotePage() {
       contactMethod,
       projectNotes: (form.elements.namedItem('projectNotes') as HTMLTextAreaElement | null)?.value ?? '',
       notes: (form.elements.namedItem('notes') as HTMLTextAreaElement | null)?.value ?? '',
+      // Bot mitigation (see /api/quote): honeypot field + time-to-submit
+      company: (form.elements.namedItem('company') as HTMLInputElement | null)?.value ?? '',
+      elapsedMs: Date.now() - renderedAt,
     }
     const res = await fetch('/api/quote', {
       method: 'POST',
@@ -99,6 +103,16 @@ export default function QuotePage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
+
+          {/* Honeypot: hidden from humans, bots tend to fill it. Leave empty. */}
+          <input
+            type="text"
+            name="company"
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', opacity: 0 }}
+          />
 
           {/* Your Info */}
           <div className="panel p-6">

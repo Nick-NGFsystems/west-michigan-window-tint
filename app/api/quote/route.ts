@@ -17,7 +17,39 @@ function labelWindows(ids: string[]): string {
   return ids.map(id => WINDOW_LABELS[id] ?? id).join(', ')
 }
 
-function buildCarDiagramHtml(selected: string[]): string {
+// ---------------------------------------------------------------------------
+// Best-effort in-memory rate limiter.
+// Persists only within a warm serverless instance, so it is NOT a hard
+// guarantee — it exists to blunt rapid bursts from a single IP without any
+// external service. For durable limits, swap in Upstash/Vercel KV later.
+// ---------------------------------------------------------------------------
+const RATE_LIMIT_MAX    = 4               // max submissions per IP...
+const RATE_LIMIT_WINDOW = 10 * 60 * 1000  // ...per 10 minutes
+const hits = new Map<string, number[]>()
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now()
+  const recent = (hits.get(ip) ?? []).filter(t => now - t < RATE_LIMIT_WINDOW)
+  recent.push(now)
+  hits.set(ip, recent)
+
+  // Opportunistic cleanup so the map cannot grow unbounded
+  if (hits.size > 5000) {
+    for (const [key, times] of hits) {
+      if (times.every(t => now - t >= RATE_LIMIT_WINDOW)) hits.delete(key)
+    }
+  }
+
+  return recent.length > RATE_LIMIT_MAX
+}
+
+function getClientIp(req: NextRequest): string {
+  const xff = req.headers.get('x-forwarded-for')
+  if (xff) return xff.split(',')[0].trim()
+  return req.headers.get('x-real-ip') ?? 'unknown'
+}
+
+function generateCarSvgTable(selected: string[]): string {
   const sel = new Set(selected)
 
   function cell(id: string, label: string, span = 1): string {
@@ -82,6 +114,17 @@ function section(title: string, rows: string, extra = '') {
   `
 }
 
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 export async function POST(req: NextRequest) {
   const apiKey       = process.env.RESEND_API_KEY
   const emailTo      = process.env.EMAIL_TO
@@ -113,7 +156,43 @@ export async function POST(req: NextRequest) {
       contactMethod: string
       projectNotes?: string
       notes: string
+      company?: string    // honeypot
+      elapsedMs?: number  // time-to-submit
     }
+
+    // --- Bot mitigation -----------------------------------------------------
+    // 1) Honeypot: real users never see or fill the "company" field.
+    if (body.company && body.company.trim() !== '') {
+      // Pretend success so bots don't learn they were caught.
+      return NextResponse.json({ success: true })
+    }
+
+    // 2) Time-to-submit: humans take more than a couple seconds to fill a form.
+    if (typeof body.elapsedMs === 'number' && body.elapsedMs < 2500) {
+      return NextResponse.json({ success: true })
+    }
+
+    // 3) Rate limit per IP (best-effort, in-memory).
+    const ip = getClientIp(req)
+    if (isRateLimited(ip)) {
+      return NextResponse.json({ success: false, error: 'Too many requests' }, { status: 429 })
+    }
+
+    // 4) Basic server-side validation.
+    const name  = (body.name  ?? '').trim()
+    const email = (body.email ?? '').trim()
+    const phone = (body.phone ?? '').trim()
+
+    if (!name || !email || !phone || !body.service) {
+      return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 })
+    }
+    if (!EMAIL_RE.test(email) || email.length > 200) {
+      return NextResponse.json({ success: false, error: 'Invalid email' }, { status: 400 })
+    }
+    if (name.length > 200 || phone.length > 40) {
+      return NextResponse.json({ success: false, error: 'Invalid input' }, { status: 400 })
+    }
+    // ------------------------------------------------------------------------
 
     const resend = new Resend(apiKey)
 
@@ -128,6 +207,10 @@ export async function POST(req: NextRequest) {
 
     const isAutoTint = !!body.vehicleYear || !!body.vehicleMake || !!body.vehicleModel || !!body.hasTint
     const windows    = body.windowsGettingTint ?? []
+
+    const safeName  = escapeHtml(name)
+    const safeEmail = escapeHtml(email)
+    const safePhone = escapeHtml(phone)
 
     const html = `
 <!DOCTYPE html>
@@ -148,34 +231,34 @@ export async function POST(req: NextRequest) {
     <div style="background:#0F0F0F;border:1px solid #2E2920;border-top:none;border-radius:0 0 12px 12px;padding:24px;">
 
       ${section('Contact Info', [
-        row('Name',      body.name),
-        row('Phone',     '<a href="tel:' + body.phone.replace(/\D/g, '') + '" style="color:#C8A84B;text-decoration:none;">' + body.phone + '</a>'),
-        row('Email',     '<a href="mailto:' + body.email + '" style="color:#C8A84B;text-decoration:none;">' + body.email + '</a>'),
-        row('Best Reach', contactMethodLabel[body.contactMethod] ?? body.contactMethod),
+        row('Name',      safeName),
+        row('Phone',     '<a href="tel:' + safePhone.replace(/\D/g, '') + '" style="color:#C8A84B;text-decoration:none;">' + safePhone + '</a>'),
+        row('Email',     '<a href="mailto:' + safeEmail + '" style="color:#C8A84B;text-decoration:none;">' + safeEmail + '</a>'),
+        row('Best Reach', contactMethodLabel[body.contactMethod] ?? escapeHtml(body.contactMethod ?? '')),
       ].join(''))}
 
       ${section('Service Requested', [
-        row('Service', body.service),
+        row('Service', escapeHtml(body.service)),
       ].join(''))}
 
       ${body.projectNotes ? section('Project Details', [
-        row('', body.projectNotes),
+        row('', escapeHtml(body.projectNotes)),
       ].join('')) : ''}
 
       ${isAutoTint ? section('Vehicle', [
-        row('Vehicle',        vehicleInfo),
+        row('Vehicle',        escapeHtml(vehicleInfo)),
         row('Has Tint',       body.hasTint === 'yes' ? 'Yes' : body.hasTint === 'no' ? 'No' : 'Not answered'),
         row('Getting Tinted', labelWindows(windows)),
-      ].join(''), windows.length > 0 ? buildCarDiagramHtml(windows) : '') : ''}
+      ].join(''), windows.length > 0 ? generateCarSvgTable(windows) : '') : ''}
 
       ${body.notes ? section('Notes', [
-        row('', body.notes),
+        row('', escapeHtml(body.notes)),
       ].join('')) : ''}
 
       <div style="margin-top:24px;text-align:center;">
-        <a href="mailto:${body.email}"
+        <a href="mailto:${safeEmail}"
           style="display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#C8A84B,#E8C060);color:#0A0A0A;font-size:13px;font-weight:700;text-decoration:none;border-radius:10px;letter-spacing:0.05em;">
-          Reply to ${body.name}
+          Reply to ${safeName}
         </a>
       </div>
 
@@ -195,8 +278,8 @@ export async function POST(req: NextRequest) {
     await resend.emails.send({
       from:    `${businessName} <${emailFrom}>`,
       to:      recipients,
-      replyTo: body.email,
-      subject: 'New Quote -- ' + body.name + ' - ' + body.service,
+      replyTo: email,
+      subject: 'New Quote -- ' + name + ' - ' + body.service,
       html,
     })
 
