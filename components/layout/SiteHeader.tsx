@@ -14,7 +14,14 @@ export default function SiteHeader({ businessName, content, primaryColor }: Site
   return (
     <header style={{ backgroundColor: primaryColor }}>
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-        <Link href="/" className="text-lg font-bold text-white" data-ngf-field="brand.businessName">
+        <Link
+          href="/"
+          className="text-lg font-bold text-white"
+          data-ngf-field="brand.businessName"
+          data-ngf-label="Business Name"
+          data-ngf-type="text"
+          data-ngf-section="Brand"
+        >
           {businessName}
         </Link>
         <nav className="flex items-center gap-6 text-sm text-white/90">

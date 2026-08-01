@@ -15,7 +15,9 @@ export async function getNgfContent(): Promise<NgfSiteContent> {
     const domain = getDomain()
     const base = process.env.NGF_APP_URL || 'https://app.ngfsystems.com'
     const url = `${base}/api/public/content?domain=${encodeURIComponent(domain)}`
-    const res = await fetch(url, { cache: 'no-store' })
+    // Time-based ISR + instant cache-bust on publish via /api/revalidate.
+    // NEVER cache:'no-store' — that hits the database on every pageview.
+    const res = await fetch(url, { next: { revalidate: 60, tags: ['ngf-content'] } })
     if (!res.ok) return {}
     const data = (await res.json()) as { content?: NgfSiteContent }
     return data.content ?? {}

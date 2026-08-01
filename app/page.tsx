@@ -2,8 +2,6 @@ import Link from 'next/link'
 import { getNgfContent, getItems } from '@/lib/ngf'
 import ServiceCardGrid from '@/components/ServiceCardGrid'
 
-export const dynamic = 'force-dynamic'
-
 export default async function HomePage() {
   const content = await getNgfContent()
 
