@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
+import { relayLeadToNgf } from '@/lib/ngf-lead'
 
 const WINDOW_LABELS: Record<string, string> = {
   'windshield':        'Windshield',
@@ -193,6 +194,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Invalid input' }, { status: 400 })
     }
     // ------------------------------------------------------------------------
+
+    // Persist FIRST to the central NGF lead store (system of record) so a
+    // quote request survives an email failure and lands in the portal.
+    await relayLeadToNgf('quote', body as Record<string, unknown>)
 
     const resend = new Resend(apiKey)
 
