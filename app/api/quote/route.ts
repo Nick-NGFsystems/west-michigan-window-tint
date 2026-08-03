@@ -1,3 +1,16 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// CURRENTLY UNUSED BY THE SITE. /quote now embeds Zach's Tintly form, which
+// posts to Tintly directly, so nothing calls this route today.
+//
+// It is kept deliberately, not by accident: the agreed next step is to restore
+// the site's own branded form + car-window selector and have THIS route forward
+// to Tintly, which brings back the portal inbox (relayLeadToNgf below) and the
+// branded email. Deleting it would mean rebuilding all of that.
+//
+// If that plan is dropped, delete this route and components/CarWindowSelector.tsx
+// together — an orphaned public endpoint that sends email is needless attack
+// surface, even with the honeypot and rate limit.
+// ─────────────────────────────────────────────────────────────────────────────
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { relayLeadToNgf } from '@/lib/ngf-lead'

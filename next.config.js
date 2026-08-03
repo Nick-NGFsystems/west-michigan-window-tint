@@ -17,7 +17,11 @@ const CSP = [
   // app.ngfsystems.com is needed for any browser-side call to the NGF public API
   // (LeadForm posts there directly). getNgfContent() is server-side and unaffected.
   "connect-src 'self' https://app.ngfsystems.com https://*.public.blob.vercel-storage.com",
-  "frame-src 'self'",
+  // go.tintly.io hosts Zach's lead form, embedded on /quote. Note the form's own
+  // page loads Meta Pixel, GTM/GA4 and Stripe inside that frame — those run under
+  // tintly.io's origin and policy, not ours, but they are still cookie-based
+  // trackers reached from this site. See the consent note in app/quote/page.tsx.
+  "frame-src 'self' https://go.tintly.io",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
