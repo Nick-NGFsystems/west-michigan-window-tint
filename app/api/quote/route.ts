@@ -157,13 +157,14 @@ export async function POST(req: NextRequest) {
       contactMethod: string
       projectNotes?: string
       notes: string
-      company?: string    // honeypot
+      _gotcha?: string    // honeypot — non-semantic name, never autofilled
       elapsedMs?: number  // time-to-submit
     }
 
     // --- Bot mitigation -----------------------------------------------------
-    // 1) Honeypot: real users never see or fill the "company" field.
-    if (body.company && body.company.trim() !== '') {
+    // 1) Honeypot: real users never see or fill the "_gotcha" field. The name is
+    //    deliberately non-semantic so browser autofill leaves it alone.
+    if (body._gotcha && body._gotcha.trim() !== '') {
       // Pretend success so bots don't learn they were caught.
       return NextResponse.json({ success: true })
     }

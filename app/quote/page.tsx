@@ -50,7 +50,7 @@ export default function QuotePage() {
       projectNotes: (form.elements.namedItem('projectNotes') as HTMLTextAreaElement | null)?.value ?? '',
       notes: (form.elements.namedItem('notes') as HTMLTextAreaElement | null)?.value ?? '',
       // Bot mitigation (see /api/quote): honeypot field + time-to-submit
-      company: (form.elements.namedItem('company') as HTMLInputElement | null)?.value ?? '',
+      _gotcha: (form.elements.namedItem('_gotcha') as HTMLInputElement | null)?.value ?? '',
       elapsedMs: Date.now() - renderedAt,
     }
     const res = await fetch('/api/quote', {
@@ -104,10 +104,13 @@ export default function QuotePage() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
 
-          {/* Honeypot: hidden from humans, bots tend to fill it. Leave empty. */}
+          {/* Honeypot: hidden from humans, bots tend to fill it. Leave empty.
+              The name MUST stay non-semantic — browsers autofill by field name,
+              so a name like "company" gets filled by real users and their
+              enquiry is silently discarded as spam. */}
           <input
             type="text"
-            name="company"
+            name="_gotcha"
             tabIndex={-1}
             autoComplete="off"
             aria-hidden="true"
