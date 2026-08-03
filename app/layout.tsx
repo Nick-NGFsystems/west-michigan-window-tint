@@ -86,7 +86,7 @@ const jsonLd = {
   description:
     'Professional auto window tint, vinyl wrap, ambient lighting, and residential & commercial window film serving Grand Rapids and West Michigan.',
   url: 'https://www.westmiwindowtint.com',
-  telephone: '+16165403107',
+  telephone: '+16162292697',
   priceRange: '$$',
   image: 'https://www.westmiwindowtint.com/images/Tint/BlueBMWFR.jpeg',
   address: {

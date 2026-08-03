@@ -14,8 +14,8 @@ import TintlyQuoteForm from '@/components/TintlyQuoteForm'
 // theirs typically auto-resizes via postMessage, which would let TintlyQuoteForm
 // drop its fixed heights.
 const TINTLY_FORM_URL = 'https://go.tintly.io/west-michigan-window-tint/forms/lead-mrqnumrh'
-const PHONE_DISPLAY = '616.540.3107'
-const PHONE_HREF = '6165403107'
+const PHONE_DISPLAY = '616.229.2697'
+const PHONE_HREF = '6162292697'
 
 export default function QuotePage() {
   return (

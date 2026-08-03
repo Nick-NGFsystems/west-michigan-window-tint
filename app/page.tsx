@@ -8,7 +8,7 @@ export default async function HomePage() {
   // Brand
   const businessName = content['brand.businessName'] || 'West Michigan Window Tint'
   const tagline      = content['brand.tagline']      || 'Tinting West Michigan Since Day One'
-  const phone        = content['brand.phone']        || '616.540.3107'
+  const phone        = content['brand.phone']        || '616.229.2697'
   const instagram    = content['brand.instagram']    || 'Westmiwindowtint'
 
   // Hero

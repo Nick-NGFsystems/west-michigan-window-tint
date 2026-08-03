@@ -32,7 +32,7 @@ const FRAME_HEIGHT = 'h-[1620px] sm:h-[1540px]'
 interface TintlyQuoteFormProps {
   /** The Tintly-hosted form URL. */
   src: string
-  /** Display phone number, e.g. "616.540.3107". */
+  /** Display phone number, e.g. "616.229.2697". */
   phoneDisplay: string
   /** Digits only, for the tel: href. */
   phoneHref: string
@@ -47,7 +47,28 @@ export default function TintlyQuoteForm({ src, phoneDisplay, phoneHref }: Tintly
 
   useEffect(() => {
     setMounted(true)
-    setDeclined(window.localStorage.getItem(CONSENT_KEY) === 'declined')
+
+    const read = () => window.localStorage.getItem(CONSENT_KEY)
+    const initial = read()
+    setDeclined(initial === 'declined')
+
+    // A choice is already stored, so nothing can change under us.
+    if (initial) return
+
+    // No choice yet: the banner is still up and the form is showing. The
+    // canonical CookieConsent reloads the page on Accept, but on Decline it
+    // emits nothing at all — no event, no reload. Without this, someone who
+    // declined while looking at the form would keep it (and Tintly's trackers)
+    // running until they happened to reload the page. Poll until a choice
+    // appears, then stop. The 'storage' event is not an option: it only fires
+    // in OTHER tabs, never the one that made the change.
+    const id = window.setInterval(() => {
+      const value = read()
+      if (!value) return
+      window.clearInterval(id)
+      if (value === 'declined') setDeclined(true)
+    }, 300)
+    return () => window.clearInterval(id)
   }, [])
 
   if (!mounted) {

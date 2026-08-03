@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import CookieSettingsButton from '@/components/CookieSettingsButton'
 import { getNgfContent } from '@/lib/ngf'
 
 // Privacy & Cookie Policy for West Michigan Window Tint.
@@ -16,8 +17,8 @@ import { getNgfContent } from '@/lib/ngf'
 // flag "have your attorney review it" at handoff.
 
 const LAST_UPDATED = 'August 2026'
-const PHONE_DISPLAY = '616.540.3107'
-const PHONE_HREF = '6165403107'
+const PHONE_DISPLAY = '616.229.2697'
+const PHONE_HREF = '6162292697'
 
 export const metadata: Metadata = {
   title: 'Privacy & Cookie Policy | West Michigan Window Tint',
@@ -164,8 +165,8 @@ export default async function PrivacyPolicyPage() {
               </li>
             </ul>
             <p className="mt-2">
-              You can also control or delete cookies through your browser settings. Blocking some cookies may affect
-              how the site works.
+              You can <CookieSettingsButton /> at any time. You can also control or delete cookies through your
+              browser settings. Blocking some cookies may affect how the site works.
             </p>
           </section>
 
