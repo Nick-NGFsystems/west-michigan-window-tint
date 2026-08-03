@@ -15,14 +15,28 @@ export async function getNgfContent(): Promise<NgfSiteContent> {
     const domain = getDomain()
     const base = process.env.NGF_APP_URL || 'https://app.ngfsystems.com'
     const url = `${base}/api/public/content?domain=${encodeURIComponent(domain)}`
-    // Time-based ISR + instant cache-bust on publish via /api/revalidate.
-    // NEVER cache:'no-store' — that hits the database on every pageview.
+    // Time-based ISR + instant cache-bust on publish (see NGF-STANDARDS
+    // "Content caching & revalidation"). NEVER use cache: 'no-store' — that
+    // hits Neon on every single pageview. The portal's push handler pings this
+    // site's /api/revalidate on publish, which busts this cache immediately.
     const res = await fetch(url, { next: { revalidate: 60, tags: ['ngf-content'] } })
     if (!res.ok) return {}
     const data = (await res.json()) as { content?: NgfSiteContent }
     return data.content ?? {}
   } catch {
     return {}
+  }
+}
+
+/**
+ * The NGF public API base + this site's domain, for the booking widget (which
+ * calls the public availability/bookings endpoints from the browser). Read on
+ * the server and passed into the client widget as props.
+ */
+export function ngfEndpoints(): { base: string; domain: string } {
+  return {
+    base: process.env.NGF_APP_URL || 'https://app.ngfsystems.com',
+    domain: getDomain(),
   }
 }
 
