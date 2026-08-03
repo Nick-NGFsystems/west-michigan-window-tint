@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import SiteHeader from '@/components/layout/SiteHeader'
 import { getNgfContent } from '@/lib/ngf'
 
 // Privacy & Cookie Policy for West Michigan Window Tint.
@@ -31,11 +30,43 @@ export const metadata: Metadata = {
 export default async function PrivacyPolicyPage() {
   const content = await getNgfContent()
   const businessName = content['brand.businessName'] || 'West Michigan Window Tint'
-  const primaryColor = content['brand.primaryColor'] || '#C8A84B'
 
   return (
     <div className="min-h-screen">
-      <SiteHeader businessName={businessName} content={content} primaryColor={primaryColor} />
+      {/* A minimal header for this legal page, matching the site's own sticky
+          dark header. It deliberately does NOT reuse the starter's SiteHeader:
+          that one is styled for a light template and its nav pointed at #about
+          / #contact, anchors which don't exist on this page (and #contact
+          doesn't exist anywhere), so both links did nothing. Every link here
+          goes somewhere real. */}
+      <header
+        className="sticky top-0 z-50 border-b backdrop-blur-md"
+        style={{ borderColor: 'var(--line)', backgroundColor: 'rgba(10,10,10,0.85)' }}
+      >
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
+          <Link
+            href="/"
+            className="text-sm font-bold uppercase tracking-[0.12em] text-[var(--text)] transition-colors hover:text-[var(--gold)]"
+          >
+            {businessName}
+          </Link>
+          <nav className="flex items-center gap-6">
+            <Link
+              href="/#services"
+              className="hidden text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted)] transition-colors hover:text-[var(--text)] sm:inline"
+            >
+              Services
+            </Link>
+            <Link
+              href="/#why"
+              className="hidden text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted)] transition-colors hover:text-[var(--text)] sm:inline"
+            >
+              About
+            </Link>
+            <Link href="/quote" className="btn-gold text-xs">Get a Quote</Link>
+          </nav>
+        </div>
+      </header>
 
       <main className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
         <span className="gold-chip">Legal</span>
@@ -125,22 +156,23 @@ export default async function PrivacyPolicyPage() {
               </li>
               <li>
                 <strong className="text-[var(--text)]">Cookies on the quote form.</strong> Our quote form is hosted by
-                Tintly and displayed on this site. Their form page sets its own analytics and advertising cookies
-                (Google Analytics and the Meta Pixel) when it loads, independently of the choice above, because they
-                are set by Tintly rather than by us. See Tintly&rsquo;s privacy policy for how they use them.
+                Tintly and displayed on this site. Their form sets its own analytics and advertising cookies (Google
+                Analytics and the Meta Pixel) when it loads — those are set by Tintly, not by us, under their privacy
+                policy. <strong className="text-[var(--text)]">If you decline, we don&rsquo;t load the form at all</strong>,
+                so those cookies are never set. You can still choose to load it yourself from that page, or simply call
+                us instead.
               </li>
             </ul>
             <p className="mt-2">
-              You can also control or delete cookies through your browser settings, and you can block third-party
-              cookies to stop those set by the quote form. Blocking some cookies may affect how the site works.
+              You can also control or delete cookies through your browser settings. Blocking some cookies may affect
+              how the site works.
             </p>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-[var(--text)]">5. Data retention</h2>
             <p className="mt-2">
-              We keep quote requests for as long as needed to respond to you and for our legitimate business records,
-              then delete or anonymize them.
+              We keep quote requests for as long as needed to respond to you and for our legitimate business records.
             </p>
           </section>
 
