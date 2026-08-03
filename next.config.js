@@ -9,14 +9,16 @@
 const CSP = [
   "default-src 'self'",
   // 'unsafe-inline' / 'unsafe-eval' are required by the Next.js runtime chunks.
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  // googletagmanager serves the consent-gated GA4 tag (components/GoogleAnalytics.tsx).
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com",
   "style-src 'self' 'unsafe-inline'",
   // https: covers Unsplash fallbacks and portal-uploaded images on Vercel Blob.
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
   // app.ngfsystems.com is needed for any browser-side call to the NGF public API
   // (LeadForm posts there directly). getNgfContent() is server-side and unaffected.
-  "connect-src 'self' https://app.ngfsystems.com https://*.public.blob.vercel-storage.com",
+  // google-analytics/googletagmanager receive the GA4 beacons.
+  "connect-src 'self' https://app.ngfsystems.com https://*.public.blob.vercel-storage.com https://www.google-analytics.com https://*.google-analytics.com https://*.googletagmanager.com",
   // go.tintly.io hosts Zach's lead form, embedded on /quote. Note the form's own
   // page loads Meta Pixel, GTM/GA4 and Stripe inside that frame — those run under
   // tintly.io's origin and policy, not ours, but they are still cookie-based

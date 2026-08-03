@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Outfit } from 'next/font/google'
 import NgfEditBridge from '@/components/NgfEditBridge'
 import CookieConsent from '@/components/CookieConsent'
+import GoogleAnalytics from '@/components/GoogleAnalytics'
 import './globals.css'
 
 const outfit = Outfit({
@@ -139,9 +140,12 @@ export default function RootLayout({
       </head>
       <body className="antialiased" suppressHydrationWarning>
         <NgfEditBridge />
+        {/* Loads only after the visitor accepts cookies, and only when
+            NEXT_PUBLIC_GA_ID is set. */}
+        <GoogleAnalytics />
         {children}
-        {/* Shown only when NEXT_PUBLIC_COOKIE_ANALYTICS=1. Gates the Tintly quote
-            form, whose page loads Meta Pixel + Google Analytics. */}
+        {/* Shown on first visit when NEXT_PUBLIC_COOKIE_ANALYTICS=1. Gates this
+            site's GA4 above. */}
         <CookieConsent />
       </body>
     </html>

@@ -99,9 +99,13 @@ export default async function PrivacyPolicyPage() {
                 <strong className="text-[var(--text)]">Website &amp; content management — NGF Systems.</strong>
               </li>
               <li>
-                <strong className="text-[var(--text)]">Analytics &amp; advertising — Google and Meta (Facebook).</strong>{' '}
-                The quote form page loads Google Analytics and the Meta Pixel, which help measure traffic and the
-                performance of our advertising.
+                <strong className="text-[var(--text)]">Analytics — Google.</strong> We use Google Analytics to measure
+                how this site is used. It runs only if you accept cookies.
+              </li>
+              <li>
+                <strong className="text-[var(--text)]">Analytics &amp; advertising on the quote form — Google and Meta
+                (Facebook).</strong> Because our quote form is hosted by Tintly, their form page loads its own Google
+                Analytics and Meta Pixel when it is displayed. Those are set by Tintly under their privacy policy.
               </li>
             </ul>
             <p className="mt-2">We may also disclose information if required by law or to protect our rights.</p>
@@ -115,14 +119,20 @@ export default async function PrivacyPolicyPage() {
                 <strong className="text-[var(--text)]">Essential cookies</strong>, needed for the site to function.
               </li>
               <li>
-                <strong className="text-[var(--text)]">Analytics and advertising cookies</strong>, set by Google
-                Analytics and the Meta Pixel on our quote form. These load only after you accept them in the cookie
-                banner. If you decline, the quote form is not loaded and you can still reach us by phone.
+                <strong className="text-[var(--text)]">Analytics cookies</strong>, set by Google Analytics to measure
+                how this site is used. These load <strong className="text-[var(--text)]">only after you accept</strong>{' '}
+                in the cookie banner shown on your first visit. Decline and they are never loaded.
+              </li>
+              <li>
+                <strong className="text-[var(--text)]">Cookies on the quote form.</strong> Our quote form is hosted by
+                Tintly and displayed on this site. Their form page sets its own analytics and advertising cookies
+                (Google Analytics and the Meta Pixel) when it loads, independently of the choice above, because they
+                are set by Tintly rather than by us. See Tintly&rsquo;s privacy policy for how they use them.
               </li>
             </ul>
             <p className="mt-2">
-              You can also control or delete cookies through your browser settings. Blocking some cookies may affect
-              how the site works.
+              You can also control or delete cookies through your browser settings, and you can block third-party
+              cookies to stop those set by the quote form. Blocking some cookies may affect how the site works.
             </p>
           </section>
 
