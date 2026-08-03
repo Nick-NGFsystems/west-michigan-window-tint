@@ -1,13 +1,16 @@
 import Link from 'next/link'
+import TintlyQuoteForm from '@/components/TintlyQuoteForm'
 
 // Zach's Tintly lead form. Submissions go to his Tintly account, NOT to the NGF
 // lead store — so they do NOT appear in the client's portal "Form Submissions"
-// inbox. See the note in app/api/quote/route.ts before changing this.
+// inbox. See the note at the top of app/api/quote/route.ts before changing this.
 //
 // If Tintly provides an official embed snippet from Zach's dashboard, prefer it:
-// theirs typically auto-resizes via postMessage, which would let us drop the
-// fixed heights below.
+// theirs typically auto-resizes via postMessage, which would let TintlyQuoteForm
+// drop its fixed heights.
 const TINTLY_FORM_URL = 'https://go.tintly.io/west-michigan-window-tint/forms/lead-mrqnumrh'
+const PHONE_DISPLAY = '616.540.3107'
+const PHONE_HREF = '6165403107'
 
 export default function QuotePage() {
   return (
@@ -32,24 +35,11 @@ export default function QuotePage() {
           </p>
         </div>
 
-        {/* The Tintly form is light-themed on a dark site. Wrapping it in a
-            bordered card makes that read as an intentional panel rather than a
-            pasted-on block. */}
-        <div
-          className="overflow-hidden rounded-2xl"
-          style={{ border: '1px solid rgba(200,168,75,0.3)', background: '#f3f4f6' }}
-        >
-          <iframe
-            src={TINTLY_FORM_URL}
-            title="Request a free quote from West Michigan Window Tint"
-            loading="lazy"
-            /* Heights measured against the live form so it never scrolls inside
-               the frame: 1528px at 343px wide, 1460px at >=592px. Headroom added
-               for validation messages. Tintly's official embed script would
-               auto-resize and make these unnecessary. */
-            className="block h-[1620px] w-full border-0 sm:h-[1540px]"
-          />
-        </div>
+        <TintlyQuoteForm
+          src={TINTLY_FORM_URL}
+          phoneDisplay={PHONE_DISPLAY}
+          phoneHref={PHONE_HREF}
+        />
 
         <p className="mt-4 text-center text-xs" style={{ color: 'var(--muted)' }}>
           Having trouble with the form?{' '}
@@ -62,8 +52,8 @@ export default function QuotePage() {
             Open it in a new tab
           </a>{' '}
           or call{' '}
-          <a href="tel:6165403107" className="underline transition-colors hover:text-[var(--gold)]">
-            616.540.3107
+          <a href={`tel:${PHONE_HREF}`} className="underline transition-colors hover:text-[var(--gold)]">
+            {PHONE_DISPLAY}
           </a>
           .
         </p>

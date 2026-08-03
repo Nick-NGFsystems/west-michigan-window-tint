@@ -400,6 +400,13 @@ export default async function HomePage() {
             {copyright}
           </p>
           <div className="flex items-center gap-4">
+            <Link
+              href="/privacy"
+              className="text-xs font-semibold uppercase tracking-[0.1em] transition-colors hover:text-[var(--text)]"
+              style={{ color: 'var(--muted)' }}
+            >
+              Privacy
+            </Link>
             <a
               href={`https://www.instagram.com/${instagram}`}
               target="_blank"
