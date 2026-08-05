@@ -8,6 +8,8 @@ import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails'
 import 'yet-another-react-lightbox/styles.css'
 import 'yet-another-react-lightbox/plugins/thumbnails.css'
 
+import { GALLERY_KEYS, GALLERY_ITEM_FIELDS } from '@/lib/galleries'
+
 type Service = { name?: string; desc?: string; image?: string }
 
 const EXTRA_IMAGES: Record<number, string[]> = {
@@ -41,16 +43,43 @@ const EXTRA_IMAGES: Record<number, string[]> = {
   ],
 }
 
-function getImages(svc: Service, idx: number): string[] {
+
+/** Published gallery for a service, falling back to the hardcoded set. */
+function getImages(svc: Service, idx: number, published?: string[]): string[] {
+  if (published && published.length > 0) return published
   const extras = EXTRA_IMAGES[idx]
   return extras && extras.length > 0 ? extras : [svc.image || '']
 }
 
+/**
+ * True while the site is being edited inside the portal iframe.
+ *
+ * The bridge sets data-ngf-edit="true" on <html>. The cards are a stacked
+ * carousel — every slide but one sits at opacity 0 — so in edit mode we lay them
+ * out as a visible grid instead. Otherwise the client can only ever click
+ * whichever photo the rotation happens to be showing.
+ */
+function useNgfEditMode(): boolean {
+  const [editing, setEditing] = useState(false)
+  useEffect(() => {
+    const read = () => setEditing(document.documentElement.dataset.ngfEdit === 'true')
+    read()
+    const mo = new MutationObserver(read)
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-ngf-edit'] })
+    return () => mo.disconnect()
+  }, [])
+  return editing
+}
+
 // Service card shown in the grid
-function ServiceCard({ svc, idx, icon, onOpen }: {
-  svc: Service; idx: number; icon: string; onOpen: (idx: number, imgIdx: number) => void
+function ServiceCard({ svc, idx, icon, onOpen, published }: {
+  svc: Service; idx: number; icon: string
+  onOpen: (idx: number, imgIdx: number) => void
+  published?: string[]
 }) {
-  const images = getImages(svc, idx)
+  const images = getImages(svc, idx, published)
+  const editing = useNgfEditMode()
+  const groupPath = `${GALLERY_KEYS[idx] ?? `gallery${idx}`}.items`
   const [current, setCurrent] = useState(0)
 
   useEffect(() => {
@@ -60,18 +89,38 @@ function ServiceCard({ svc, idx, icon, onOpen }: {
   }, [images.length])
 
   return (
-    <div onClick={() => onOpen(idx, 0)}
-      className="panel-gold flex cursor-pointer flex-col overflow-hidden transition-all hover:border-[rgba(200,168,75,0.45)]">
-      <div className="relative h-44 w-full overflow-hidden">
-        {images.map((src, i) => (
-          <img key={src} src={src} alt={svc.name ?? ''}
-            data-ngf-field={i === 0 ? `services.items.${idx}.image` : undefined}
-            data-ngf-label={i === 0 ? 'Photo' : undefined}
-            data-ngf-type={i === 0 ? 'image' : undefined}
-            data-ngf-section={i === 0 ? 'Services' : undefined}
-            className="absolute inset-0 h-full w-full object-cover transition-opacity duration-700"
-            style={{ opacity: i === current ? 1 : 0 }} />
-        ))}
+    <div onClick={editing ? undefined : () => onOpen(idx, 0)}
+      className={`panel-gold flex flex-col overflow-hidden transition-all hover:border-[rgba(200,168,75,0.45)] ${editing ? '' : 'cursor-pointer'}`}>
+      <div className={editing ? 'relative w-full overflow-hidden' : 'relative h-44 w-full overflow-hidden'}>
+        {/* Repeatable gallery. The container's DIRECT CHILDREN must be exactly one
+            element per item and nothing else — the bridge locates an item with
+            child.querySelector() and clones the last direct child when adding, so
+            the gradient and icon overlays below must stay OUTSIDE this div.
+            Always rendered, never gated on content being non-empty: the portal
+            scrapes this HTML to build the sidebar, so a hidden container means the
+            client can never add their first photo. */}
+        <div
+          data-ngf-group={groupPath}
+          data-ngf-item-label="Photo"
+          data-ngf-min-items="1"
+          data-ngf-max-items="30"
+          data-ngf-item-fields={GALLERY_ITEM_FIELDS}
+          className={editing ? 'grid grid-cols-3 gap-1 p-1' : 'contents'}
+        >
+          {images.map((src, i) => (
+            <div key={`${src}-${i}`} className={editing ? 'relative aspect-square overflow-hidden rounded' : 'contents'}>
+              <img src={src} alt={svc.name ?? ''}
+                data-ngf-field={`${groupPath}.${i}.src`}
+                data-ngf-label="Photo"
+                data-ngf-type="image"
+                data-ngf-section={svc.name || 'Gallery'}
+                className={editing
+                  ? 'h-full w-full object-cover'
+                  : 'absolute inset-0 h-full w-full object-cover transition-opacity duration-700'}
+                style={editing ? undefined : { opacity: i === current ? 1 : 0 }} />
+            </div>
+          ))}
+        </div>
         <div className="absolute inset-0"
           style={{ background: 'linear-gradient(to bottom, transparent 50%, rgba(10,10,10,0.7) 100%)' }} />
         <div className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-lg text-xs font-bold tracking-widest"
@@ -106,15 +155,18 @@ function ServiceCard({ svc, idx, icon, onOpen }: {
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   services: Service[]
   icons: string[]
+  /** Published gallery photos per service, index-aligned with `services`.
+      Empty or missing entries fall back to the hardcoded EXTRA_IMAGES set. */
+  galleries?: string[][]
 }
 
-export default function ServiceCardGrid({ services, icons, ...rest }: Props) {
+export default function ServiceCardGrid({ services, icons, galleries, ...rest }: Props) {
   const [open, setOpen] = useState(false)
   const [index, setIndex] = useState(0)
   const [slides, setSlides] = useState<{ src: string }[]>([])
 
   function openLightbox(svcIdx: number, imgIdx: number) {
-    const images = getImages(services[svcIdx], svcIdx)
+    const images = getImages(services[svcIdx], svcIdx, galleries?.[svcIdx])
     setSlides(images.map(src => ({ src })))
     setIndex(imgIdx)
     setOpen(true)
@@ -126,6 +178,7 @@ export default function ServiceCardGrid({ services, icons, ...rest }: Props) {
         {services.map((svc, i) => (
           <ServiceCard key={i} svc={svc} idx={i}
             icon={icons[i] ?? String(i + 1).padStart(2, '0')}
+            published={galleries?.[i]}
             onOpen={openLightbox} />
         ))}
       </div>

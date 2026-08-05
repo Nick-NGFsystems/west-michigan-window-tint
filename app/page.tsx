@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getNgfContent, getItems } from '@/lib/ngf'
 import ServiceCardGrid from '@/components/ServiceCardGrid'
+import { GALLERY_KEYS } from '@/lib/galleries'
 
 export default async function HomePage() {
   const content = await getNgfContent()
@@ -197,6 +198,9 @@ export default async function HomePage() {
           <ServiceCardGrid
             services={services}
             icons={serviceIcons}
+            galleries={GALLERY_KEYS.map(k =>
+              getItems(content, `${k}.items`).map(it => it.src).filter(Boolean)
+            )}
             data-ngf-group="services.items"
             data-ngf-item-label="Service"
             data-ngf-min-items="1"
