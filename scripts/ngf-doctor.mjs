@@ -128,7 +128,13 @@ if (!revPath) {
   // it posts to /api/leads/ingest — the prospect-signup path used by NGF's own
   // marketing site, where an enquiry is a lead for the AGENCY rather than a
   // customer of a client. Both persist; only email-only routes lose the lead.
-  const REACHES = /relayLeadToNgf|api\/leads\/ingest/
+    // reportOrderToNgf was added after this rule was written, and a checkout
+    // route trips looksLikeLead for perfectly good reasons: it POSTs, it takes
+    // a name and an email, and it sends a receipt. But an order IS the
+    // persisted record — exactly what this rule asks for. Without it a
+    // compliant storefront fails a rule it satisfies, and the fix somebody
+    // reaches for is bolting a lead relay onto a payment route.
+  const REACHES = /relayLeadToNgf|api\/leads\/ingest|reportOrderToNgf/
   const mailing = API_ROUTES.filter((f) => looksLikeLead(f.src) && !/revalidate|\bngf-lead\b/.test(f.path))
   const relayed = mailing.filter((f) => REACHES.test(f.src))
   const orphaned = mailing.filter((f) => !REACHES.test(f.src))
@@ -408,6 +414,40 @@ has('app/robots.ts') || has('app/robots.js')
 
 const hasJsonLd = FILES.some((f) => /application\/ld\+json/.test(f.src))
 hasJsonLd ? ok('Structured data (JSON-LD)') : warn('Structured data (JSON-LD)', 'No LocalBusiness JSON-LD found — required by the SEO launch gate before launch.')
+
+// Dynamic routes must be enumerated in the sitemap or they are invisible to
+// Google. A static (non-async) sitemap cannot enumerate them — it has no way to
+// read published content. This has shipped: a portfolio grew nine [slug] pages
+// that never appeared in sitemap.xml, and every other SEO check still passed.
+{
+  const dynamicRoutes = FILES
+    .filter((f) => /(^|\/)app\/.*\[[^\]]+\]\/page\.(t|j)sx?$/.test(f.path))
+    .map((f) => f.path)
+
+  if (dynamicRoutes.length === 0) {
+    ok('Dynamic routes in sitemap', 'No dynamic routes to enumerate.')
+  } else {
+    const sitemapPath = ['app/sitemap.ts', 'app/sitemap.js'].find(has)
+    const sitemapSrc = sitemapPath ? stripComments(read(sitemapPath) ?? '') : ''
+    // An async sitemap is the only shape that can await published content.
+    const isAsync = /export\s+default\s+async\s+function/.test(sitemapSrc) ||
+                    /Promise<\s*MetadataRoute\.Sitemap\s*>/.test(sitemapSrc)
+
+    if (!sitemapPath) {
+      // Already failed above for the missing file; don't double-report.
+      ok('Dynamic routes in sitemap', 'Skipped — no sitemap to check.')
+    } else if (!isAsync) {
+      fail(
+        'Dynamic routes in sitemap',
+        `${dynamicRoutes.length} dynamic route(s) (${dynamicRoutes.join(', ')}) but ${sitemapPath} is a ` +
+          `static function, so it cannot emit their URLs. Those pages are invisible to search engines. ` +
+          `Make the sitemap async, read the same content source the route uses, and map over it.`,
+      )
+    } else {
+      ok('Dynamic routes in sitemap', `${dynamicRoutes.length} dynamic route(s); sitemap is async.`)
+    }
+  }
+}
 
 // ── 6. Build cost discipline ─────────────────────────────────────────────────
 const vercelJson = read('vercel.json')
