@@ -131,8 +131,9 @@ export default async function PrivacyPolicyPage() {
                 <strong className="text-[var(--text)]">Website &amp; content management — NGF Systems.</strong>
               </li>
               <li>
-                <strong className="text-[var(--text)]">Analytics — Google.</strong> We use Google Analytics to measure
-                how this site is used. It runs only if you accept cookies.
+                <strong className="text-[var(--text)]">Analytics &amp; advertising — Google and Meta (Facebook).</strong>{' '}
+                We use Google Analytics to measure how this site is used, and the Meta Pixel to measure how our
+                Facebook and Instagram ads perform. Both run only if you accept cookies.
               </li>
               <li>
                 <strong className="text-[var(--text)]">Analytics &amp; advertising on the quote form — Google and Meta
@@ -151,9 +152,10 @@ export default async function PrivacyPolicyPage() {
                 <strong className="text-[var(--text)]">Essential cookies</strong>, needed for the site to function.
               </li>
               <li>
-                <strong className="text-[var(--text)]">Analytics cookies</strong>, set by Google Analytics to measure
-                how this site is used. These load <strong className="text-[var(--text)]">only after you accept</strong>{' '}
-                in the cookie banner shown on your first visit. Decline and they are never loaded.
+                <strong className="text-[var(--text)]">Analytics and advertising cookies</strong>, set by Google
+                Analytics and the Meta Pixel, to measure how this site is used and how our ads perform. These load{' '}
+                <strong className="text-[var(--text)]">only after you accept</strong> in the cookie banner shown on
+                your first visit. Decline and they are never loaded.
               </li>
               <li>
                 <strong className="text-[var(--text)]">Cookies on the quote form.</strong> Our quote form is hosted by

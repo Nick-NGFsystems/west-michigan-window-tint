@@ -3,6 +3,7 @@ import { Outfit } from 'next/font/google'
 import NgfEditBridge from '@/components/NgfEditBridge'
 import CookieConsent from '@/components/CookieConsent'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
+import MetaPixel from '@/components/MetaPixel'
 import './globals.css'
 
 const outfit = Outfit({
@@ -143,9 +144,11 @@ export default function RootLayout({
         {/* Loads only after the visitor accepts cookies, and only when
             NEXT_PUBLIC_GA_ID is set. */}
         <GoogleAnalytics />
+        {/* Also consent-gated; no-op until NEXT_PUBLIC_FB_PIXEL_ID is set. */}
+        <MetaPixel />
         {children}
         {/* Shown on first visit when NEXT_PUBLIC_COOKIE_ANALYTICS=1. Gates this
-            site's GA4 above. */}
+            site's GA4 and Meta Pixel above. */}
         <CookieConsent />
       </body>
     </html>
